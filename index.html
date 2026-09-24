@@ -109,12 +109,22 @@
               <input type="text" id="editSiteName" class="w-full border border-chocolate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-chocolate-500 outline-none">
             </div>
             <div>
-              <label class="block text-sm font-medium mb-1">رابط الشعار</label>
-              <input type="text" id="editLogo" class="w-full border border-chocolate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-chocolate-500 outline-none" placeholder="https://...">
+              <label class="block text-sm font-medium mb-1">الشعار (Logo)</label>
+              <input type="text" id="editLogo" class="w-full border border-chocolate-300 rounded-lg px-3 py-2 mb-2 focus:ring-2 focus:ring-chocolate-500 outline-none" placeholder="رابط أو ارفع صورة من جهازك">
+              <label class="cursor-pointer bg-chocolate-100 hover:bg-chocolate-200 text-chocolate-800 text-center py-2 rounded-lg text-sm font-semibold block">
+                📷 رفع شعار من الجهاز
+                <input type="file" id="logoUpload" accept="image/*" class="hidden">
+              </label>
+              <img id="logoPreview" src="" class="mt-2 w-16 h-16 rounded-full object-cover border hidden">
             </div>
             <div>
               <label class="block text-sm font-medium mb-1">أيقونة الموقع (Favicon)</label>
-              <input type="text" id="editFavicon" class="w-full border border-chocolate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-chocolate-500 outline-none" placeholder="https://...">
+              <input type="text" id="editFavicon" class="w-full border border-chocolate-300 rounded-lg px-3 py-2 mb-2 focus:ring-2 focus:ring-chocolate-500 outline-none" placeholder="رابط أو ارفع صورة من جهازك">
+              <label class="cursor-pointer bg-chocolate-100 hover:bg-chocolate-200 text-chocolate-800 text-center py-2 rounded-lg text-sm font-semibold block">
+                📷 رفع أيقونة من الجهاز
+                <input type="file" id="faviconUpload" accept="image/*" class="hidden">
+              </label>
+              <img id="faviconPreview" src="" class="mt-2 w-8 h-8 rounded object-cover border hidden">
             </div>
             <div class="border border-chocolate-200 rounded-xl p-3 space-y-3">
               <h4 class="font-bold text-sm text-chocolate-800">معلومات الفروع</h4>
@@ -195,10 +205,10 @@
           <label class="block text-sm font-medium mb-1">رابط الصورة</label>
           <input type="text" id="itemImage" class="w-full border border-chocolate-300 rounded-lg px-3 py-2 mb-2 outline-none" placeholder="https://...">
           <label class="cursor-pointer bg-chocolate-100 hover:bg-chocolate-200 text-chocolate-800 text-center py-2 rounded-lg text-sm font-semibold block">
-            📷 رفع صورة محلية
+            📷 رفع صورة من الجهاز
             <input type="file" id="itemImageUpload" accept="image/*" class="hidden">
           </label>
-          <p class="text-xs text-chocolate-500 mt-1">يفضّل رفع الصورة على imgbb.com ولصق الرابط لتظهر على كل الأجهزة</p>
+          <p class="text-xs text-chocolate-500 mt-1">تقدر ترفع من جهازك مباشرة، أو تلصق رابط صورة</p>
           <img id="itemImagePreview" src="" class="mt-3 w-full h-40 object-cover rounded-lg hidden border">
         </div>
         <div class="flex gap-3 pt-2">
@@ -381,9 +391,49 @@
       document.getElementById('editShop2Name').value = settings.shop2_name || '';
       document.getElementById('editShop2Phone').value = settings.shop2_phone || '';
       document.getElementById('editFooterDesc').value = settings.footer_desc || '';
+      const lp = document.getElementById('logoPreview');
+      if (settings.logo) { lp.src = settings.logo; lp.classList.remove('hidden'); } else { lp.classList.add('hidden'); }
+      const fp = document.getElementById('faviconPreview');
+      if (settings.favicon) { fp.src = settings.favicon; fp.classList.remove('hidden'); } else { fp.classList.add('hidden'); }
       renderSectionsManager();
     }
     document.getElementById('closeAdmin').onclick = () => document.getElementById('adminModal').classList.add('hidden');
+
+    function readImageFile(file, maxBytes, onDone) {
+      if (!file) return;
+      if (file.size > maxBytes) {
+        alert('الصورة كبيرة جداً (الحد ' + Math.round(maxBytes/1024) + ' كيلوبايت). صغّر الصورة أو استخدم رابط');
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = (ev) => onDone(ev.target.result);
+      reader.readAsDataURL(file);
+    }
+
+    document.getElementById('logoUpload').onchange = (e) => {
+      readImageFile(e.target.files[0], 800 * 1024, (dataUrl) => {
+        document.getElementById('editLogo').value = dataUrl;
+        const lp = document.getElementById('logoPreview');
+        lp.src = dataUrl; lp.classList.remove('hidden');
+        showToast('تم اختيار الشعار - اضغط حفظ الإعدادات');
+      });
+    };
+    document.getElementById('faviconUpload').onchange = (e) => {
+      readImageFile(e.target.files[0], 300 * 1024, (dataUrl) => {
+        document.getElementById('editFavicon').value = dataUrl;
+        const fp = document.getElementById('faviconPreview');
+        fp.src = dataUrl; fp.classList.remove('hidden');
+        showToast('تم اختيار الأيقونة - اضغط حفظ الإعدادات');
+      });
+    };
+    document.getElementById('editLogo').oninput = (e) => {
+      const lp = document.getElementById('logoPreview');
+      if (e.target.value) { lp.src = e.target.value; lp.classList.remove('hidden'); } else lp.classList.add('hidden');
+    };
+    document.getElementById('editFavicon').oninput = (e) => {
+      const fp = document.getElementById('faviconPreview');
+      if (e.target.value) { fp.src = e.target.value; fp.classList.remove('hidden'); } else fp.classList.add('hidden');
+    };
 
     function renderSectionsManager() {
       const container = document.getElementById('sectionsManager');
@@ -475,17 +525,12 @@
       else prev.classList.add('hidden');
     };
     document.getElementById('itemImageUpload').onchange = (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
-      if (file.size > 1024 * 1024) { alert('الصورة كبيرة. ارفعها على imgbb.com والصق الرابط'); return; }
-      const reader = new FileReader();
-      reader.onload = (ev) => {
-        document.getElementById('itemImage').value = ev.target.result;
+      readImageFile(e.target.files[0], 1500 * 1024, (dataUrl) => {
+        document.getElementById('itemImage').value = dataUrl;
         const prev = document.getElementById('itemImagePreview');
-        prev.src = ev.target.result; prev.classList.remove('hidden');
+        prev.src = dataUrl; prev.classList.remove('hidden');
         showToast('تم اختيار الصورة - اضغط حفظ');
-      };
-      reader.readAsDataURL(file);
+      });
     };
 
     async function upsertSetting(key, value) {
