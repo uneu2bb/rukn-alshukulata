@@ -118,6 +118,16 @@
               <input type="text" id="editLogo" class="w-full border border-chocolate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-chocolate-500 outline-none mb-2" placeholder="https://... أو ارفع صورة">
               <input type="file" id="logoUpload" accept="image/*" class="w-full text-sm">
             </div>
+            <div>
+              <label class="block text-sm font-medium mb-1">نوع العملة</label>
+              <select id="editCurrency" class="w-full border border-chocolate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-chocolate-500 outline-none">
+                <option value="ل.س">ليرة سورية (ل.س)</option>
+                <option value="$">دولار أمريكي ($)</option>
+                <option value="₺">ليرة تركية (₺)</option>
+                <option value="ر.س">ريال سعودي (ر.س)</option>
+                <option value="د.إ">درهم إماراتي (د.إ)</option>
+              </select>
+            </div>
             <button id="saveSiteSettings" class="bg-chocolate-700 text-white px-5 py-2 rounded-lg font-semibold hover:bg-chocolate-800 transition">حفظ إعدادات الموقع</button>
           </div>
         </div>
@@ -187,6 +197,7 @@
       siteName: "ركن الشوكلاتة",
       logo: "https://images.unsplash.com/photo-1606312619070-d48b4c652a52?w=120&h=120&fit=crop",
       primaryColor: "#846358",
+      currency: "ل.س",
       sections: [
         { id: "cakes", title: "حلويات الكيك", icon: "🎂", items: [
           { id: "c1", name: "كيك الشوكولاتة الفاخر", desc: "طبقات غنية من الشوكولاتة البلجيكية مع كريمة طازجة", price: 28, image: "https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=600&h=400&fit=crop&q=80" },
@@ -273,10 +284,11 @@
       wrapper.innerHTML = `<div class="flex items-center gap-3 mb-6"><span class="text-3xl">${section.icon}</span><h2 class="text-2xl md:text-3xl font-bold text-chocolate-900">${section.title}</h2></div><div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5" id="itemsGrid"></div>`;
       container.appendChild(wrapper);
       const grid = document.getElementById('itemsGrid');
+      const curr = data.currency || "ل.س";
       section.items.forEach(item => {
         const card = document.createElement('div');
         card.className = 'bg-white rounded-2xl overflow-hidden shadow-md card-hover border border-chocolate-100';
-        card.innerHTML = `<div class="relative h-48 overflow-hidden"><img src="${item.image}" alt="${item.name}" class="w-full h-full object-cover transition duration-500 hover:scale-110" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1551024601-bec78aea704b?w=600&h=400&fit=crop'"><div class="absolute top-3 left-3 bg-chocolate-800/90 text-white text-sm font-bold px-3 py-1 rounded-full">${item.price} ر.س</div></div><div class="p-4"><h3 class="font-bold text-lg text-chocolate-900 mb-1">${item.name}</h3><p class="text-sm text-chocolate-600 leading-relaxed line-clamp-2">${item.desc}</p>${isAdminUnlocked ? `<button class="edit-btn mt-3 w-full bg-chocolate-100 text-chocolate-800 py-2 rounded-lg text-sm font-semibold hover:bg-chocolate-200 transition" data-section="${section.id}" data-item="${item.id}">✏️ تعديل</button>` : ''}</div>`;
+        card.innerHTML = `<div class="relative h-48 overflow-hidden"><img src="${item.image}" alt="${item.name}" class="w-full h-full object-cover transition duration-500 hover:scale-110" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1551024601-bec78aea704b?w=600&h=400&fit=crop'"><div class="absolute top-3 left-3 bg-chocolate-800/90 text-white text-sm font-bold px-3 py-1 rounded-full">${item.price} ${curr}</div></div><div class="p-4"><h3 class="font-bold text-lg text-chocolate-900 mb-1">${item.name}</h3><p class="text-sm text-chocolate-600 leading-relaxed line-clamp-2">${item.desc}</p>${isAdminUnlocked ? `<button class="edit-btn mt-3 w-full bg-chocolate-100 text-chocolate-800 py-2 rounded-lg text-sm font-semibold hover:bg-chocolate-200 transition" data-section="${section.id}" data-item="${item.id}">✏️ تعديل</button>` : ''}</div>`;
         grid.appendChild(card);
       });
       if (isAdminUnlocked) {
@@ -311,6 +323,7 @@
       document.getElementById('adminModal').classList.remove('hidden');
       document.getElementById('editSiteName').value = data.siteName;
       document.getElementById('editLogo').value = data.logo;
+      document.getElementById('editCurrency').value = data.currency || "ل.س";
       renderSectionsManager();
     }
     document.getElementById('closeAdmin').onclick = () => document.getElementById('adminModal').classList.add('hidden');
@@ -417,7 +430,9 @@
     document.getElementById('saveSiteSettings').onclick = () => {
       data.siteName = document.getElementById('editSiteName').value.trim() || data.siteName;
       data.logo = document.getElementById('editLogo').value.trim() || data.logo;
+      data.currency = document.getElementById('editCurrency').value || "ل.س";
       applySiteSettings(); saveData();
+      renderActiveSection();
     };
     document.getElementById('logoUpload').onchange = (e) => {
       const file = e.target.files[0]; if (!file) return;
