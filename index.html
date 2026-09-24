@@ -214,7 +214,7 @@
   <script>
     const SUPABASE_URL = 'https://pfslgeehnliczddigdtw.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_X6qLBG-YzlQExyDq6Wix_Q_rzc5g77b';
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     let settings = {};
     let items = [];
@@ -243,7 +243,7 @@
     }
 
     async function loadSettings() {
-      const { data, error } = await supabase.from('site_settings').select('key,value');
+      const { data, error } = await sbClient.from('site_settings').select('key,value');
       if (error) { console.error(error); showToast('خطأ بالإعدادات: ' + error.message); return; }
       settings = {};
       (data || []).forEach(r => { settings[r.key] = r.value; });
@@ -251,7 +251,7 @@
     }
 
     async function loadItems() {
-      const { data, error } = await supabase.from('menu_items').select('*').order('sort_order', { ascending: true });
+      const { data, error } = await sbClient.from('menu_items').select('*').order('sort_order', { ascending: true });
       if (error) {
         document.getElementById('menuContainer').innerHTML =
           '<div class="text-center py-20 text-red-600">خطأ بتحميل القائمة. نفّذ كود SQL أولاً.<br><span class="text-sm">' + error.message + '</span></div>';
@@ -451,8 +451,8 @@
       if (!name) { alert('الرجاء إدخال اسم الصنف'); return; }
       const payload = { name, description, price_try, price_syp, category, category_icon, image_url };
       let error;
-      if (currentEditId) ({ error } = await supabase.from('menu_items').update(payload).eq('id', currentEditId));
-      else ({ error } = await supabase.from('menu_items').insert([payload]));
+      if (currentEditId) ({ error } = await sbClient.from('menu_items').update(payload).eq('id', currentEditId));
+      else ({ error } = await sbClient.from('menu_items').insert([payload]));
       if (error) { alert('خطأ بالحفظ: ' + error.message); return; }
       showToast('تم الحفظ على السحابة ✓');
       document.getElementById('editItemModal').classList.add('hidden');
@@ -462,7 +462,7 @@
     document.getElementById('deleteItem').onclick = async () => {
       if (!currentEditId) return;
       if (!confirm('هل أنت متأكد من حذف هذا الصنف؟')) return;
-      const { error } = await supabase.from('menu_items').delete().eq('id', currentEditId);
+      const { error } = await sbClient.from('menu_items').delete().eq('id', currentEditId);
       if (error) { alert('خطأ بالحذف: ' + error.message); return; }
       showToast('تم الحذف ✓');
       document.getElementById('editItemModal').classList.add('hidden');
@@ -489,7 +489,7 @@
     };
 
     async function upsertSetting(key, value) {
-      const { error } = await supabase.from('site_settings').upsert({ key, value, updated_at: new Date().toISOString() });
+      const { error } = await sbClient.from('site_settings').upsert({ key, value, updated_at: new Date().toISOString() });
       return error;
     }
 
