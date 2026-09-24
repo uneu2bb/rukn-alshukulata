@@ -128,6 +128,11 @@
                 <option value="د.إ">درهم إماراتي (د.إ)</option>
               </select>
             </div>
+            <div class="border-t border-chocolate-200 pt-3 mt-2">
+              <label class="block text-sm font-medium mb-1">تغيير كلمة سر لوحة التحكم</label>
+              <input type="password" id="newAdminPassword" class="w-full border border-chocolate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-chocolate-500 outline-none mb-2" placeholder="كلمة السر الجديدة (اتركها فارغة إذا ما بدك تغير)">
+              <input type="password" id="confirmAdminPassword" class="w-full border border-chocolate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-chocolate-500 outline-none" placeholder="تأكيد كلمة السر الجديدة">
+            </div>
             <button id="saveSiteSettings" class="bg-chocolate-700 text-white px-5 py-2 rounded-lg font-semibold hover:bg-chocolate-800 transition">حفظ إعدادات الموقع</button>
           </div>
         </div>
@@ -169,7 +174,7 @@
           <textarea id="itemDesc" rows="2" class="w-full border border-chocolate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-chocolate-500 outline-none"></textarea>
         </div>
         <div>
-          <label class="block text-sm font-medium mb-1">السعر (ريال)</label>
+          <label class="block text-sm font-medium mb-1">السعر</label>
           <input type="number" id="itemPrice" class="w-full border border-chocolate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-chocolate-500 outline-none">
         </div>
         <div>
@@ -192,7 +197,13 @@
   <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-chocolate-800 text-white px-6 py-3 rounded-full shadow-lg opacity-0 transition-opacity duration-300 z-[200] pointer-events-none text-sm">تم الحفظ</div>
 
   <script>
-    const ADMIN_PASSWORD = "2004";
+    function getAdminPassword() {
+      return localStorage.getItem("ruknAdminPassword") || "2004";
+    }
+    function setAdminPassword(pw) {
+      localStorage.setItem("ruknAdminPassword", pw);
+    }
+
     const defaultData = {
       siteName: "ركن الشوكلاتة",
       logo: "https://images.unsplash.com/photo-1606312619070-d48b4c652a52?w=120&h=120&fit=crop",
@@ -311,7 +322,7 @@
       if (!isAdminUnlocked) {
         const entered = prompt("أدخل كلمة سر لوحة التحكم:");
         if (entered === null) return;
-        if (entered !== ADMIN_PASSWORD) { alert("كلمة السر غير صحيحة"); return; }
+        if (entered !== getAdminPassword()) { alert("كلمة السر غير صحيحة"); return; }
         sessionStorage.setItem("ruknAdminUnlocked", "yes");
         isAdminUnlocked = true;
         renderActiveSection();
@@ -431,6 +442,24 @@
       data.siteName = document.getElementById('editSiteName').value.trim() || data.siteName;
       data.logo = document.getElementById('editLogo').value.trim() || data.logo;
       data.currency = document.getElementById('editCurrency').value || "ل.س";
+
+      const newPass = document.getElementById('newAdminPassword').value.trim();
+      const confirmPass = document.getElementById('confirmAdminPassword').value.trim();
+      if (newPass) {
+        if (newPass !== confirmPass) {
+          alert("كلمة السر وتأكيدها غير متطابقين");
+          return;
+        }
+        if (newPass.length < 3) {
+          alert("كلمة السر لازم تكون 3 أحرف على الأقل");
+          return;
+        }
+        setAdminPassword(newPass);
+        document.getElementById('newAdminPassword').value = '';
+        document.getElementById('confirmAdminPassword').value = '';
+        showToast('تم تغيير كلمة السر بنجاح ✓');
+      }
+
       applySiteSettings(); saveData();
       renderActiveSection();
     };
