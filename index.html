@@ -208,7 +208,7 @@
             📷 رفع صورة من الجهاز
             <input type="file" id="itemImageUpload" accept="image/*" class="hidden">
           </label>
-          <p class="text-xs text-chocolate-500 mt-1">تُضغط الصورة تلقائياً (عرض 800px، جودة 70%) ثم تُحفظ. أو الصق رابط</p>
+          <p class="text-xs text-chocolate-500 mt-1">تُضغط وتُرفع تلقائياً إلى السحابة (WebP خفيف). أو الصق رابط</p>
           <img id="itemImagePreview" src="" class="mt-3 w-full h-40 object-cover rounded-lg hidden border">
         </div>
         <div class="flex gap-3 pt-2">
@@ -399,6 +399,8 @@
     }
     document.getElementById('closeAdmin').onclick = () => document.getElementById('adminModal').classList.add('hidden');
 
+    const STORAGE_BUCKET = 'menu-images';
+
     function compressImage(file, options) {
       return new Promise((resolve, reject) => {
         if (!file || !file.type.startsWith('image/')) {
@@ -426,35 +428,32 @@
             ctx.fillRect(0, 0, w, h);
             ctx.drawImage(img, 0, 0, w, h);
 
-            function tryExport(type, q) {
+            function tryBlob(type, q) {
               return new Promise((res) => {
-                canvas.toBlob((blob) => {
-                  if (!blob) { res(null); return; }
-                  const r2 = new FileReader();
-                  r2.onload = () => res({ dataUrl: r2.result, size: blob.size, type });
-                  r2.readAsDataURL(blob);
-                }, type, q);
+                canvas.toBlob((blob) => res(blob || null), type, q);
               });
             }
 
             (async () => {
-              let result = await tryExport('image/webp', quality);
-              if (!result) result = await tryExport('image/jpeg', quality);
-              if (!result) {
-                try {
-                  const dataUrl = canvas.toDataURL('image/jpeg', quality);
-                  resolve({ dataUrl, size: Math.round(dataUrl.length * 0.75), type: 'image/jpeg' });
-                } catch (e) { reject(e); }
+              let type = 'image/webp';
+              let blob = await tryBlob('image/webp', quality);
+              if (!blob) {
+                type = 'image/jpeg';
+                blob = await tryBlob('image/jpeg', quality);
+              }
+              if (!blob) {
+                reject(new Error('فشل ضغط الصورة'));
                 return;
               }
               let q = quality;
-              while (result.size > 120 * 1024 && q > 0.4) {
+              while (blob.size > 120 * 1024 && q > 0.4) {
                 q -= 0.1;
-                const again = await tryExport(result.type, q);
-                if (again) result = again;
+                const again = await tryBlob(type, q);
+                if (again) blob = again;
                 else break;
               }
-              resolve(result);
+              const ext = type === 'image/webp' ? 'webp' : 'jpg';
+              resolve({ blob, type, size: blob.size, ext, previewUrl: URL.createObjectURL(blob) });
             })();
           };
           img.src = reader.result;
@@ -463,32 +462,47 @@
       });
     }
 
+    async function uploadToStorage(blob, type, folder, ext) {
+      const name = folder + '/' + Date.now() + '-' + Math.random().toString(36).slice(2, 8) + '.' + ext;
+      const { error } = await sbClient.storage
+        .from(STORAGE_BUCKET)
+        .upload(name, blob, { contentType: type, upsert: false, cacheControl: '3600' });
+      if (error) throw error;
+      const { data } = sbClient.storage.from(STORAGE_BUCKET).getPublicUrl(name);
+      if (!data || !data.publicUrl) throw new Error('تعذر الحصول على رابط الصورة');
+      return data.publicUrl;
+    }
+
     async function handleImagePick(file, opts, onDone) {
       if (!file) return;
       try {
         showToast('جاري ضغط الصورة...');
-        const result = await compressImage(file, opts);
-        const kb = Math.round(result.size / 1024);
-        onDone(result.dataUrl, kb);
+        const compressed = await compressImage(file, opts);
+        const kb = Math.round(compressed.size / 1024);
+        showToast('جاري الرفع إلى السحابة (' + kb + ' ك.ب)...');
+        const folder = (opts && opts.folder) || 'items';
+        const publicUrl = await uploadToStorage(compressed.blob, compressed.type, folder, compressed.ext);
+        onDone(publicUrl, kb, compressed.previewUrl);
       } catch (err) {
-        alert('تعذر معالجة الصورة: ' + (err.message || err));
+        console.error(err);
+        alert('تعذر رفع الصورة: ' + (err.message || err));
       }
     }
 
     document.getElementById('logoUpload').onchange = (e) => {
-      handleImagePick(e.target.files[0], { maxWidth: 400, quality: 0.75 }, (dataUrl, kb) => {
-        document.getElementById('editLogo').value = dataUrl;
+      handleImagePick(e.target.files[0], { maxWidth: 400, quality: 0.75, folder: 'logo' }, (publicUrl, kb, preview) => {
+        document.getElementById('editLogo').value = publicUrl;
         const lp = document.getElementById('logoPreview');
-        lp.src = dataUrl; lp.classList.remove('hidden');
-        showToast('تم ضغط الشعار (' + kb + ' ك.ب) - اضغط حفظ الإعدادات');
+        lp.src = preview || publicUrl; lp.classList.remove('hidden');
+        showToast('تم رفع الشعار (' + kb + ' ك.ب) - اضغط حفظ الإعدادات');
       });
     };
     document.getElementById('faviconUpload').onchange = (e) => {
-      handleImagePick(e.target.files[0], { maxWidth: 128, quality: 0.75 }, (dataUrl, kb) => {
-        document.getElementById('editFavicon').value = dataUrl;
+      handleImagePick(e.target.files[0], { maxWidth: 128, quality: 0.75, folder: 'favicon' }, (publicUrl, kb, preview) => {
+        document.getElementById('editFavicon').value = publicUrl;
         const fp = document.getElementById('faviconPreview');
-        fp.src = dataUrl; fp.classList.remove('hidden');
-        showToast('تم ضغط الأيقونة (' + kb + ' ك.ب) - اضغط حفظ الإعدادات');
+        fp.src = preview || publicUrl; fp.classList.remove('hidden');
+        showToast('تم رفع الأيقونة (' + kb + ' ك.ب) - اضغط حفظ الإعدادات');
       });
     };
     document.getElementById('editLogo').oninput = (e) => {
@@ -590,11 +604,11 @@
       else prev.classList.add('hidden');
     };
     document.getElementById('itemImageUpload').onchange = (e) => {
-      handleImagePick(e.target.files[0], { maxWidth: 800, quality: 0.7 }, (dataUrl, kb) => {
-        document.getElementById('itemImage').value = dataUrl;
+      handleImagePick(e.target.files[0], { maxWidth: 800, quality: 0.7, folder: 'items' }, (publicUrl, kb, preview) => {
+        document.getElementById('itemImage').value = publicUrl;
         const prev = document.getElementById('itemImagePreview');
-        prev.src = dataUrl; prev.classList.remove('hidden');
-        showToast('تم ضغط الصورة (' + kb + ' ك.ب) - اضغط حفظ');
+        prev.src = preview || publicUrl; prev.classList.remove('hidden');
+        showToast('تم رفع الصورة (' + kb + ' ك.ب) - اضغط حفظ');
       });
     };
 
