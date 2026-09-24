@@ -49,11 +49,8 @@
           <p class="text-xs text-chocolate-600 hidden sm:block">أجود الحلويات والقهوة</p>
         </div>
       </div>
-      <button id="menuBtn" class="w-10 h-10 flex flex-col items-center justify-center gap-1.5 rounded-lg hover:bg-chocolate-100 transition" title="القائمة">
-        <span class="block w-5 h-0.5 bg-chocolate-800 rounded"></span>
-        <span class="block w-5 h-0.5 bg-chocolate-800 rounded"></span>
-        <span class="block w-5 h-0.5 bg-chocolate-800 rounded"></span>
-      </button>
+      <!-- زر الإدارة مخفي - اضغط على الشعار 5 مرات للدخول -->
+      <div id="secretAdminTrigger" class="w-10 h-10"></div>
     </div>
   </header>
 
@@ -312,23 +309,37 @@
       }
     }
 
-    document.getElementById('menuBtn').onclick = () => document.getElementById('sideMenu').classList.remove('hidden');
-    document.getElementById('closeSideMenu').onclick = closeSideMenu;
-    document.getElementById('sideMenuOverlay').onclick = closeSideMenu;
-    function closeSideMenu() { document.getElementById('sideMenu').classList.add('hidden'); }
+    // ===== دخول سري للوحة التحكم: اضغط على الشعار 5 مرات =====
+    let logoClickCount = 0;
+    let logoClickTimer = null;
 
-    document.getElementById('adminAccessBtn').onclick = () => {
-      closeSideMenu();
-      if (!isAdminUnlocked) {
-        const entered = prompt("أدخل كلمة سر لوحة التحكم:");
-        if (entered === null) return;
-        if (entered !== getAdminPassword()) { alert("كلمة السر غير صحيحة"); return; }
-        sessionStorage.setItem("ruknAdminUnlocked", "yes");
-        isAdminUnlocked = true;
-        renderActiveSection();
+    document.getElementById('siteLogo').style.cursor = 'pointer';
+    document.getElementById('siteLogo').title = '';
+
+    document.getElementById('siteLogo').onclick = () => {
+      logoClickCount++;
+      clearTimeout(logoClickTimer);
+      logoClickTimer = setTimeout(() => { logoClickCount = 0; }, 2500);
+
+      if (logoClickCount >= 5) {
+        logoClickCount = 0;
+        if (!isAdminUnlocked) {
+          const entered = prompt("أدخل كلمة سر لوحة التحكم:");
+          if (entered === null) return;
+          if (entered !== getAdminPassword()) {
+            alert("كلمة السر غير صحيحة");
+            return;
+          }
+          sessionStorage.setItem("ruknAdminUnlocked", "yes");
+          isAdminUnlocked = true;
+          renderActiveSection();
+        }
+        openAdminPanel();
       }
-      openAdminPanel();
     };
+
+    const sideMenu = document.getElementById('sideMenu');
+    if (sideMenu) sideMenu.style.display = 'none';
 
     function openAdminPanel() {
       document.getElementById('adminModal').classList.remove('hidden');
