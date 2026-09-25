@@ -37,28 +37,35 @@
     .cat-btn:not(.active):hover { background: #f2e8e5; }
     .scrollbar-hide::-webkit-scrollbar { display: none; }
     .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+    img.fade-img { opacity: 0; transition: opacity 0.45s ease; }
+    img.fade-img.is-loaded { opacity: 1; }
   </style>
 </head>
 <body class="bg-chocolate-50 text-chocolate-900">
   <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md shadow-md border-b border-chocolate-200">
-    <div class="container mx-auto px-4 py-3 flex flex-col items-center justify-center text-center">
-      <a id="logoHomeLink" href="/" title="القائمة الرئيسية" class="inline-block group">
-        <img id="siteLogo" src="" alt="شعار ركن الشوكلاتة"
-             class="w-[70px] h-[70px] md:w-20 md:h-20 rounded-full object-cover border-2 border-chocolate-600 shadow-md group-hover:scale-105 transition-transform duration-300 opacity-0">
-      </a>
-      <h1 id="siteName" class="mt-2 text-lg md:text-xl font-bold text-chocolate-900">ركن الشوكلاتة</h1>
-      <p class="text-xs text-chocolate-600 hidden sm:block">أجود الحلويات والقهوة</p>
+    <div class="container mx-auto px-4 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <a id="logoHomeLink" href="/" title="القائمة الرئيسية" class="inline-block group shrink-0">
+          <img id="siteLogo" src="" alt="شعار"
+               class="w-12 h-12 md:w-14 md:h-14 rounded-full object-cover border-2 border-chocolate-600 shadow group-hover:scale-105 transition-all duration-300 opacity-0">
+        </a>
+        <div>
+          <h1 id="siteName" class="text-lg md:text-xl font-bold text-chocolate-900">ركن الشوكلاتة</h1>
+          <p class="text-xs text-chocolate-600 hidden sm:block">أجود الحلويات والقهوة</p>
+        </div>
+      </div>
+      <div class="w-10 h-10"></div>
     </div>
   </header>
-  <section class="relative h-[280px] md:h-[380px] overflow-hidden">
-    <img id="heroCover" src="https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=1600&h=900&fit=crop" alt="Hero" class="absolute inset-0 w-full h-full object-cover">
+  <section class="relative h-[280px] md:h-[380px] overflow-hidden bg-chocolate-200">
+    <img id="heroCover" src="" alt="Hero" class="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-500">
     <div class="absolute inset-0 bg-gradient-to-t from-chocolate-950/90 via-chocolate-900/50 to-transparent"></div>
     <div class="relative h-full container mx-auto px-4 flex flex-col justify-end pb-8 text-white">
       <h2 class="text-3xl md:text-5xl font-extrabold mb-2 drop-shadow-lg">ركن الشوكلاتة</h2>
       <p class="text-base md:text-lg max-w-xl opacity-95">قائمة مميزة من الحلويات والقهوة الفاخرة</p>
     </div>
   </section>
-  <div class="sticky top-[118px] z-40 bg-white border-b border-chocolate-200 shadow-sm">
+  <div class="sticky top-[60px] z-40 bg-white border-b border-chocolate-200 shadow-sm">
     <div class="container mx-auto px-3"><div id="categoryBar" class="flex gap-2 overflow-x-auto py-3 scrollbar-hide"></div></div>
   </div>
   <main id="menuContainer" class="container mx-auto px-4 py-8 min-h-[50vh]">
@@ -106,10 +113,23 @@
       const name=settings.site_name||'ركن الشوكلاتة';
       document.getElementById('siteName').textContent=name;document.getElementById('footerName').textContent=name;document.title=name;
       const logoEl=document.getElementById('siteLogo');
-      if(settings.logo){logoEl.src=cacheBust(settings.logo);logoEl.classList.remove('opacity-0');logoEl.style.opacity='1'}
-      else{logoEl.src='https://images.unsplash.com/photo-1606312619070-d48b4c652a52?w=160&h=160&fit=crop';logoEl.classList.remove('opacity-0');logoEl.style.opacity='1'}
+      function revealImg(el, url, fallback){
+        if(!el)return;
+        const src=url?cacheBust(url):(fallback||'');
+        if(!src){el.style.opacity='0';return}
+        el.onload=function(){el.style.opacity='1';el.classList.add('is-loaded')};
+        el.onerror=function(){if(fallback&&el.src.indexOf(fallback)<0){el.src=fallback}else{el.style.opacity='0'}};
+        el.style.opacity='0';
+        el.src=src;
+        if(el.complete&&el.naturalWidth){el.style.opacity='1';el.classList.add('is-loaded')}
+      }
+      revealImg(logoEl, settings.logo, 'https://images.unsplash.com/photo-1606312619070-d48b4c652a52?w=160&h=160&fit=crop');
       const fav=settings.favicon||settings.logo||'';const fl=document.getElementById('siteFavicon');if(fl&&fav)fl.href=cacheBust(fav);
-      const hero=document.getElementById('heroCover');if(hero&&settings.cover)hero.src=cacheBust(settings.cover);
+      const hero=document.getElementById('heroCover');
+      if(hero){
+        const coverUrl=settings.cover||'https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=1600&h=900&fit=crop';
+        revealImg(hero, coverUrl, '');
+      }
       const fd=document.getElementById('footerDesc');if(settings.footer_desc){fd.textContent=settings.footer_desc;fd.classList.remove('hidden')}else{fd.textContent='';fd.classList.add('hidden')}
       const s1b=document.getElementById('shop1Box');if(settings.shop1_name||settings.shop1_phone){s1b.classList.remove('hidden');document.getElementById('shop1NameEl').textContent=settings.shop1_name||'';const ph=(settings.shop1_phone||'').trim();const a=document.getElementById('shop1PhoneEl');a.textContent=ph;a.href=ph?('tel:'+ph.replace(/\s/g,'')):'#'}else s1b.classList.add('hidden');
       const s2b=document.getElementById('shop2Box');if(settings.shop2_name||settings.shop2_phone){s2b.classList.remove('hidden');document.getElementById('shop2NameEl').textContent=settings.shop2_name||'';const ph=(settings.shop2_phone||'').trim();const a=document.getElementById('shop2PhoneEl');a.textContent=ph;a.href=ph?('tel:'+ph.replace(/\s/g,'')):'#'}else s2b.classList.add('hidden');
@@ -123,7 +143,7 @@
       if(fbU){fb.href=fbU;fb.classList.remove('hidden')}else fb.classList.add('hidden');
     }
     function renderCategoryBar(){const bar=document.getElementById('categoryBar');bar.innerHTML='';sections.forEach(sec=>{const btn=document.createElement('button');btn.className='cat-btn px-4 py-2 rounded-full text-sm font-semibold border border-chocolate-200 '+(sec.title===activeCategory?'active':'bg-white text-chocolate-800');btn.innerHTML=sec.icon+' '+sec.title;btn.onclick=()=>{activeCategory=sec.title;renderCategoryBar();renderActiveSection()};bar.appendChild(btn)})}
-    function renderActiveSection(){const container=document.getElementById('menuContainer');container.innerHTML='';const section=sections.find(s=>s.title===activeCategory);if(!section){container.innerHTML='<p class="text-center text-chocolate-500 py-20">لا توجد أصناف</p>';return}const wrapper=document.createElement('div');wrapper.className='fade-in';wrapper.innerHTML='<div class="flex items-center gap-3 mb-6"><span class="text-3xl">'+section.icon+'</span><h2 class="text-2xl font-bold">'+section.title+'</h2></div><div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5" id="itemsGrid"></div>';container.appendChild(wrapper);const grid=document.getElementById('itemsGrid');section.items.forEach(item=>{const card=document.createElement('div');card.className='bg-white rounded-2xl overflow-hidden shadow-md card-hover border border-chocolate-100';const img=cacheBust(item.image_url||'https://images.unsplash.com/photo-1551024601-bec78aea704b?w=600&h=400&fit=crop');card.innerHTML='<div class="relative h-48 overflow-hidden"><img src="'+img+'" class="w-full h-full object-cover" loading="lazy" alt=""><div class="absolute top-3 left-3 bg-chocolate-800/90 text-white text-xs font-bold px-2.5 py-1.5 rounded-full">'+(item.price_try||0)+' ₺ | '+(item.price_syp||0)+' ل.س</div></div><div class="p-4"><h3 class="font-bold text-lg mb-1">'+(item.name||'')+'</h3><p class="text-sm text-chocolate-600 line-clamp-2">'+(item.description||'')+'</p>'+(isAdminUnlocked?'<button class="edit-btn mt-3 w-full bg-chocolate-100 py-2 rounded-lg text-sm" data-id="'+item.id+'">✏️ تعديل</button>':'')+'</div>';grid.appendChild(card)});if(isAdminUnlocked){const addBtn=document.createElement('div');addBtn.className='bg-chocolate-50 border-2 border-dashed border-chocolate-300 rounded-2xl flex flex-col items-center justify-center min-h-[280px] cursor-pointer';addBtn.innerHTML='<span class="text-4xl mb-2">➕</span><span class="font-semibold">إضافة صنف</span>';addBtn.onclick=()=>openEditItem(null,activeCategory);grid.appendChild(addBtn);document.querySelectorAll('.edit-btn').forEach(btn=>{btn.onclick=()=>openEditItem(btn.dataset.id)})}}
+    function renderActiveSection(){const container=document.getElementById('menuContainer');container.innerHTML='';const section=sections.find(s=>s.title===activeCategory);if(!section){container.innerHTML='<p class="text-center text-chocolate-500 py-20">لا توجد أصناف</p>';return}const wrapper=document.createElement('div');wrapper.className='fade-in';wrapper.innerHTML='<div class="flex items-center gap-3 mb-6"><span class="text-3xl">'+section.icon+'</span><h2 class="text-2xl font-bold">'+section.title+'</h2></div><div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5" id="itemsGrid"></div>';container.appendChild(wrapper);const grid=document.getElementById('itemsGrid');section.items.forEach(item=>{const card=document.createElement('div');card.className='bg-white rounded-2xl overflow-hidden shadow-md card-hover border border-chocolate-100';const rawImg=item.image_url||'https://images.unsplash.com/photo-1551024601-bec78aea704b?w=600&h=400&fit=crop';const img=cacheBust(rawImg);card.innerHTML='<div class="relative h-48 overflow-hidden bg-chocolate-100"><img src="'+img+'" class="fade-img w-full h-full object-cover" loading="lazy" alt="" onload="this.classList.add(\'is-loaded\')"><div class="absolute top-3 left-3 bg-chocolate-800/90 text-white text-xs font-bold px-2.5 py-1.5 rounded-full">'+(item.price_try||0)+' ₺ | '+(item.price_syp||0)+' ل.س</div></div><div class="p-4"><h3 class="font-bold text-lg mb-1">'+(item.name||'')+'</h3><p class="text-sm text-chocolate-600 line-clamp-2">'+(item.description||'')+'</p>'+(isAdminUnlocked?'<button class="edit-btn mt-3 w-full bg-chocolate-100 py-2 rounded-lg text-sm" data-id="'+item.id+'">✏️ تعديل</button>':'')+'</div>';grid.appendChild(card)});if(isAdminUnlocked){const addBtn=document.createElement('div');addBtn.className='bg-chocolate-50 border-2 border-dashed border-chocolate-300 rounded-2xl flex flex-col items-center justify-center min-h-[280px] cursor-pointer';addBtn.innerHTML='<span class="text-4xl mb-2">➕</span><span class="font-semibold">إضافة صنف</span>';addBtn.onclick=()=>openEditItem(null,activeCategory);grid.appendChild(addBtn);document.querySelectorAll('.edit-btn').forEach(btn=>{btn.onclick=()=>openEditItem(btn.dataset.id)})}}
     let logoClickCount=0,logoClickTimer=null;
     function goHomeMenu(e){
       if(e)e.preventDefault();
