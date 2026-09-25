@@ -41,15 +41,13 @@
 </head>
 <body class="bg-chocolate-50 text-chocolate-900">
   <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md shadow-md border-b border-chocolate-200">
-    <div class="container mx-auto px-4 py-3 flex items-center justify-between">
-      <div class="flex items-center gap-3">
-        <img id="siteLogo" src="https://images.unsplash.com/photo-1606312619070-d48b4c652a52?w=80&h=80&fit=crop" alt="شعار" class="w-11 h-11 rounded-full object-cover border-2 border-chocolate-600 shadow">
-        <div>
-          <h1 id="siteName" class="text-lg md:text-xl font-bold text-chocolate-900">ركن الشوكلاتة</h1>
-          <p class="text-xs text-chocolate-600 hidden sm:block">أجود الحلويات والقهوة</p>
-        </div>
-      </div>
-      <div class="w-10 h-10"></div>
+    <div class="container mx-auto px-4 py-3 flex flex-col items-center justify-center text-center">
+      <a id="logoHomeLink" href="/" title="القائمة الرئيسية" class="inline-block group">
+        <img id="siteLogo" src="" alt="شعار ركن الشوكلاتة"
+             class="w-[70px] h-[70px] md:w-20 md:h-20 rounded-full object-cover border-2 border-chocolate-600 shadow-md group-hover:scale-105 transition-transform duration-300 opacity-0">
+      </a>
+      <h1 id="siteName" class="mt-2 text-lg md:text-xl font-bold text-chocolate-900">ركن الشوكلاتة</h1>
+      <p class="text-xs text-chocolate-600 hidden sm:block">أجود الحلويات والقهوة</p>
     </div>
   </header>
   <section class="relative h-[280px] md:h-[380px] overflow-hidden">
@@ -60,7 +58,7 @@
       <p class="text-base md:text-lg max-w-xl opacity-95">قائمة مميزة من الحلويات والقهوة الفاخرة</p>
     </div>
   </section>
-  <div class="sticky top-[60px] z-40 bg-white border-b border-chocolate-200 shadow-sm">
+  <div class="sticky top-[118px] z-40 bg-white border-b border-chocolate-200 shadow-sm">
     <div class="container mx-auto px-3"><div id="categoryBar" class="flex gap-2 overflow-x-auto py-3 scrollbar-hide"></div></div>
   </div>
   <main id="menuContainer" class="container mx-auto px-4 py-8 min-h-[50vh]">
@@ -107,7 +105,9 @@
     function applySettings(){
       const name=settings.site_name||'ركن الشوكلاتة';
       document.getElementById('siteName').textContent=name;document.getElementById('footerName').textContent=name;document.title=name;
-      if(settings.logo)document.getElementById('siteLogo').src=cacheBust(settings.logo);
+      const logoEl=document.getElementById('siteLogo');
+      if(settings.logo){logoEl.src=cacheBust(settings.logo);logoEl.classList.remove('opacity-0');logoEl.style.opacity='1'}
+      else{logoEl.src='https://images.unsplash.com/photo-1606312619070-d48b4c652a52?w=160&h=160&fit=crop';logoEl.classList.remove('opacity-0');logoEl.style.opacity='1'}
       const fav=settings.favicon||settings.logo||'';const fl=document.getElementById('siteFavicon');if(fl&&fav)fl.href=cacheBust(fav);
       const hero=document.getElementById('heroCover');if(hero&&settings.cover)hero.src=cacheBust(settings.cover);
       const fd=document.getElementById('footerDesc');if(settings.footer_desc){fd.textContent=settings.footer_desc;fd.classList.remove('hidden')}else{fd.textContent='';fd.classList.add('hidden')}
@@ -124,7 +124,33 @@
     }
     function renderCategoryBar(){const bar=document.getElementById('categoryBar');bar.innerHTML='';sections.forEach(sec=>{const btn=document.createElement('button');btn.className='cat-btn px-4 py-2 rounded-full text-sm font-semibold border border-chocolate-200 '+(sec.title===activeCategory?'active':'bg-white text-chocolate-800');btn.innerHTML=sec.icon+' '+sec.title;btn.onclick=()=>{activeCategory=sec.title;renderCategoryBar();renderActiveSection()};bar.appendChild(btn)})}
     function renderActiveSection(){const container=document.getElementById('menuContainer');container.innerHTML='';const section=sections.find(s=>s.title===activeCategory);if(!section){container.innerHTML='<p class="text-center text-chocolate-500 py-20">لا توجد أصناف</p>';return}const wrapper=document.createElement('div');wrapper.className='fade-in';wrapper.innerHTML='<div class="flex items-center gap-3 mb-6"><span class="text-3xl">'+section.icon+'</span><h2 class="text-2xl font-bold">'+section.title+'</h2></div><div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5" id="itemsGrid"></div>';container.appendChild(wrapper);const grid=document.getElementById('itemsGrid');section.items.forEach(item=>{const card=document.createElement('div');card.className='bg-white rounded-2xl overflow-hidden shadow-md card-hover border border-chocolate-100';const img=cacheBust(item.image_url||'https://images.unsplash.com/photo-1551024601-bec78aea704b?w=600&h=400&fit=crop');card.innerHTML='<div class="relative h-48 overflow-hidden"><img src="'+img+'" class="w-full h-full object-cover" loading="lazy" alt=""><div class="absolute top-3 left-3 bg-chocolate-800/90 text-white text-xs font-bold px-2.5 py-1.5 rounded-full">'+(item.price_try||0)+' ₺ | '+(item.price_syp||0)+' ل.س</div></div><div class="p-4"><h3 class="font-bold text-lg mb-1">'+(item.name||'')+'</h3><p class="text-sm text-chocolate-600 line-clamp-2">'+(item.description||'')+'</p>'+(isAdminUnlocked?'<button class="edit-btn mt-3 w-full bg-chocolate-100 py-2 rounded-lg text-sm" data-id="'+item.id+'">✏️ تعديل</button>':'')+'</div>';grid.appendChild(card)});if(isAdminUnlocked){const addBtn=document.createElement('div');addBtn.className='bg-chocolate-50 border-2 border-dashed border-chocolate-300 rounded-2xl flex flex-col items-center justify-center min-h-[280px] cursor-pointer';addBtn.innerHTML='<span class="text-4xl mb-2">➕</span><span class="font-semibold">إضافة صنف</span>';addBtn.onclick=()=>openEditItem(null,activeCategory);grid.appendChild(addBtn);document.querySelectorAll('.edit-btn').forEach(btn=>{btn.onclick=()=>openEditItem(btn.dataset.id)})}}
-    let logoClickCount=0,logoClickTimer=null;document.getElementById('siteLogo').style.cursor='pointer';document.getElementById('siteLogo').onclick=()=>{logoClickCount++;clearTimeout(logoClickTimer);logoClickTimer=setTimeout(()=>{logoClickCount=0},2500);if(logoClickCount>=5){logoClickCount=0;if(!isAdminUnlocked){const entered=prompt('أدخل كلمة سر لوحة التحكم:');if(entered===null)return;if(entered!==(settings.admin_password||'2004')){alert('كلمة السر غير صحيحة');return}sessionStorage.setItem('ruknAdminUnlocked','yes');isAdminUnlocked=true;renderActiveSection()}openAdminPanel()}};
+    let logoClickCount=0,logoClickTimer=null;
+    function goHomeMenu(e){
+      if(e)e.preventDefault();
+      window.scrollTo({top:0,behavior:'smooth'});
+      if(sections.length){activeCategory=sections[0].title;renderCategoryBar();renderActiveSection()}
+      else{location.href='/'}
+    }
+    document.getElementById('logoHomeLink').onclick=function(e){
+      logoClickCount++;
+      clearTimeout(logoClickTimer);
+      logoClickTimer=setTimeout(()=>{logoClickCount=0},2500);
+      if(logoClickCount>=5){
+        logoClickCount=0;
+        e.preventDefault();
+        if(!isAdminUnlocked){
+          const entered=prompt('أدخل كلمة سر لوحة التحكم:');
+          if(entered===null)return;
+          if(entered!==(settings.admin_password||'2004')){alert('كلمة السر غير صحيحة');return}
+          sessionStorage.setItem('ruknAdminUnlocked','yes');
+          isAdminUnlocked=true;
+          renderActiveSection();
+        }
+        openAdminPanel();
+        return;
+      }
+      goHomeMenu(e);
+    };
     function openAdminPanel(){document.getElementById('adminModal').classList.remove('hidden');document.getElementById('editSiteName').value=settings.site_name||'';document.getElementById('editLogo').value=settings.logo||'';document.getElementById('editFavicon').value=settings.favicon||'';document.getElementById('editCover').value=settings.cover||'';document.getElementById('editShop1Name').value=settings.shop1_name||'';document.getElementById('editShop1Phone').value=settings.shop1_phone||'';document.getElementById('editShop2Name').value=settings.shop2_name||'';document.getElementById('editShop2Phone').value=settings.shop2_phone||'';document.getElementById('editFooterDesc').value=settings.footer_desc||'';document.getElementById('editWhatsapp').value=settings.whatsapp||'';document.getElementById('editInstagram').value=settings.instagram||'';document.getElementById('editFacebook').value=settings.facebook||'';const lp=document.getElementById('logoPreview');if(settings.logo){lp.src=toPublicUrl(settings.logo);lp.classList.remove('hidden')}else lp.classList.add('hidden');const fp=document.getElementById('faviconPreview');if(settings.favicon){fp.src=toPublicUrl(settings.favicon);fp.classList.remove('hidden')}else fp.classList.add('hidden');const cpv=document.getElementById('coverPreview');if(settings.cover){cpv.src=toPublicUrl(settings.cover);cpv.classList.remove('hidden')}else cpv.classList.add('hidden');renderSectionsManager()}
     document.getElementById('closeAdmin').onclick=()=>document.getElementById('adminModal').classList.add('hidden');
     function compressImage(file,options){return new Promise((resolve,reject)=>{if(!file||!file.type.startsWith('image/')){reject(new Error('ليس صورة'));return}const maxWidth=(options&&options.maxWidth)||800;const quality=(options&&options.quality)!=null?options.quality:0.7;const reader=new FileReader();reader.onerror=()=>reject(new Error('فشل القراءة'));reader.onload=()=>{const img=new Image();img.onerror=()=>reject(new Error('فشل التحميل'));img.onload=()=>{let w=img.width,h=img.height;if(w>maxWidth){h=Math.round(h*(maxWidth/w));w=maxWidth}const canvas=document.createElement('canvas');canvas.width=w;canvas.height=h;const ctx=canvas.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,w,h);ctx.drawImage(img,0,0,w,h);function tryBlob(type,q){return new Promise(res=>canvas.toBlob(b=>res(b||null),type,q))}(async()=>{let type='image/webp';let blob=await tryBlob('image/webp',quality);if(!blob){type='image/jpeg';blob=await tryBlob('image/jpeg',quality)}if(!blob){reject(new Error('فشل الضغط'));return}let q=quality;while(blob.size>120*1024&&q>0.4){q-=0.1;const again=await tryBlob(type,q);if(again)blob=again;else break}const ext=type==='image/webp'?'webp':'jpg';resolve({blob,type,size:blob.size,ext,previewUrl:URL.createObjectURL(blob)})})()};img.src=reader.result};reader.readAsDataURL(file)})}
