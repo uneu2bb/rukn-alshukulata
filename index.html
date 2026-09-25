@@ -39,6 +39,10 @@
     .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
     img.fade-img { opacity: 0; transition: opacity 0.45s ease; }
     img.fade-img.is-loaded { opacity: 1; }
+    #floatingCart { transform: translateY(120%); transition: transform 0.35s cubic-bezier(.2,.8,.2,1); }
+    #floatingCart.show { transform: translateY(0); }
+    .qty-btn { width: 2rem; height: 2rem; border-radius: 9999px; display: inline-flex; align-items: center; justify-content: center; font-weight: 700; line-height: 1; }
+    .qty-btn:active { transform: scale(0.92); }
   </style>
 </head>
 <body class="bg-chocolate-50 text-chocolate-900">
@@ -68,7 +72,7 @@
   <div class="sticky top-[60px] z-40 bg-white border-b border-chocolate-200 shadow-sm">
     <div class="container mx-auto px-3"><div id="categoryBar" class="flex gap-2 overflow-x-auto py-3 scrollbar-hide"></div></div>
   </div>
-  <main id="menuContainer" class="container mx-auto px-4 py-8 min-h-[50vh]">
+  <main id="menuContainer" class="container mx-auto px-4 py-8 min-h-[50vh] pb-28">
     <div class="text-center py-20 text-chocolate-500">جاري تحميل القائمة...</div>
   </main>
   <footer class="bg-chocolate-900 text-chocolate-100 py-10 mt-12">
@@ -88,7 +92,42 @@
   </footer>
   <div id="adminModal" class="fixed inset-0 z-[100] hidden bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"><div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl admin-panel fade-in"><div class="sticky top-0 bg-chocolate-800 text-white px-6 py-4 rounded-t-2xl flex justify-between items-center"><h2 class="text-xl font-bold">لوحة التحكم (سحابي)</h2><button id="closeAdmin" class="text-2xl">×</button></div><div class="p-6 space-y-6"><div class="border border-chocolate-200 rounded-xl p-4"><h3 class="font-bold text-lg mb-4">إعدادات الموقع</h3><div class="space-y-3"><div><label class="block text-sm font-medium mb-1">اسم الموقع</label><input type="text" id="editSiteName" class="w-full border rounded-lg px-3 py-2 outline-none"></div><div><label class="block text-sm font-medium mb-1">الشعار الرئيسي (أعلى الموقع)</label><input type="text" id="editLogo" class="w-full border rounded-lg px-3 py-2 mb-2 outline-none" placeholder="رابط أو ارفع من الجهاز"><label class="cursor-pointer bg-chocolate-100 hover:bg-chocolate-200 text-center py-2 rounded-lg text-sm font-semibold block">📷 رفع شعار من الجهاز<input type="file" id="logoUpload" accept="image/*" class="hidden"></label><img id="logoPreview" class="mt-2 w-16 h-16 rounded-full object-cover border hidden" alt=""></div><div><label class="block text-sm font-medium mb-1">صورة الغلاف (أعلى الصفحة)</label><input type="text" id="editCover" class="w-full border rounded-lg px-3 py-2 mb-2 outline-none" placeholder="رابط أو ارفع من الجهاز"><label class="cursor-pointer bg-chocolate-100 hover:bg-chocolate-200 text-center py-2 rounded-lg text-sm font-semibold block">📷 رفع صورة غلاف من الجهاز<input type="file" id="coverUpload" accept="image/*" class="hidden"></label><img id="coverPreview" class="mt-2 w-full h-24 object-cover rounded-lg border hidden" alt=""></div><div><label class="block text-sm font-medium mb-1">الصورة المصغرة (Favicon)</label><input type="text" id="editFavicon" class="w-full border rounded-lg px-3 py-2 mb-2 outline-none" placeholder="رابط أو ارفع من الجهاز"><label class="cursor-pointer bg-chocolate-100 hover:bg-chocolate-200 text-center py-2 rounded-lg text-sm font-semibold block">📷 رفع صورة مصغرة من الجهاز<input type="file" id="faviconUpload" accept="image/*" class="hidden"></label><img id="faviconPreview" class="mt-2 w-8 h-8 rounded border hidden" alt=""></div><div class="border rounded-xl p-3 space-y-3"><h4 class="font-bold text-sm">الفروع</h4><div class="grid grid-cols-2 gap-3"><input type="text" id="editShop1Name" class="border rounded-lg px-3 py-2 text-sm" placeholder="اسم المحل 1"><input type="text" id="editShop1Phone" class="border rounded-lg px-3 py-2 text-sm" placeholder="هاتف 1" dir="ltr"><input type="text" id="editShop2Name" class="border rounded-lg px-3 py-2 text-sm" placeholder="اسم المحل 2"><input type="text" id="editShop2Phone" class="border rounded-lg px-3 py-2 text-sm" placeholder="هاتف 2" dir="ltr"></div><textarea id="editFooterDesc" rows="2" class="w-full border rounded-lg px-3 py-2 text-sm" placeholder="وصف أسفل الموقع"></textarea><div class="border rounded-xl p-3 space-y-2 bg-white"><h4 class="font-bold text-sm">وسائل التواصل</h4><input type="text" id="editWhatsapp" class="w-full border rounded-lg px-3 py-2 text-sm" placeholder="واتساب" dir="ltr"><input type="text" id="editInstagram" class="w-full border rounded-lg px-3 py-2 text-sm" placeholder="إنستغرام" dir="ltr"><input type="text" id="editFacebook" class="w-full border rounded-lg px-3 py-2 text-sm" placeholder="فيسبوك" dir="ltr"></div></div><div class="border-t pt-3"><label class="block text-sm mb-1">تغيير كلمة السر</label><input type="password" id="newAdminPassword" class="w-full border rounded-lg px-3 py-2 mb-2" placeholder="جديدة"><input type="password" id="confirmAdminPassword" class="w-full border rounded-lg px-3 py-2" placeholder="تأكيد"></div><button id="saveSiteSettings" class="bg-chocolate-700 text-white px-5 py-2 rounded-lg font-semibold">حفظ الإعدادات</button></div></div><div class="border rounded-xl p-4"><h3 class="font-bold text-lg mb-4">إدارة الأصناف</h3><div id="sectionsManager" class="space-y-4"></div></div></div></div></div>
   <div id="editItemModal" class="fixed inset-0 z-[110] hidden bg-black/60 flex items-center justify-center p-4"><div class="bg-white rounded-2xl shadow-2xl w-full max-w-md fade-in"><div class="bg-chocolate-800 text-white px-6 py-4 rounded-t-2xl flex justify-between"><h2 class="text-xl font-bold" id="editItemTitle">تعديل</h2><button id="closeEditItem" class="text-2xl">×</button></div><div class="p-6 space-y-4"><input type="text" id="itemName" class="w-full border rounded-lg px-3 py-2" placeholder="اسم الصنف"><textarea id="itemDesc" rows="2" class="w-full border rounded-lg px-3 py-2" placeholder="الوصف"></textarea><div class="grid grid-cols-2 gap-3"><input type="number" id="itemPriceTRY" class="w-full border rounded-lg px-3 py-2" placeholder="تركي ₺"><input type="number" id="itemPriceSYP" class="w-full border rounded-lg px-3 py-2" placeholder="سوري ل.س"></div><input type="text" id="itemCategory" class="w-full border rounded-lg px-3 py-2" placeholder="القسم"><input type="text" id="itemCategoryIcon" class="w-full border rounded-lg px-3 py-2" placeholder="أيقونة القسم"><input type="text" id="itemImage" class="w-full border rounded-lg px-3 py-2 mb-2" placeholder="رابط الصورة"><label class="cursor-pointer bg-chocolate-100 hover:bg-chocolate-200 text-center py-2 rounded-lg text-sm font-semibold block">📷 رفع صورة من الجهاز<input type="file" id="itemImageUpload" accept="image/*" class="hidden"></label><p class="text-xs text-chocolate-500">تُضغط تلقائياً (WebP) وتُرفع للسحابة</p><img id="itemImagePreview" class="mt-3 w-full h-40 object-cover rounded-lg hidden border" alt=""><div class="flex gap-3"><button id="saveItem" class="flex-1 bg-chocolate-700 text-white py-2.5 rounded-lg">حفظ</button><button id="deleteItem" class="px-4 bg-red-500 text-white py-2.5 rounded-lg">حذف</button></div></div></div></div>
-  <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-chocolate-800 text-white px-6 py-3 rounded-full opacity-0 transition-opacity z-[200] text-sm">تم</div>
+
+  <div id="floatingCart" class="fixed bottom-0 inset-x-0 z-[90] px-3 pb-3 pt-2 pointer-events-none">
+    <button type="button" id="openCartBtn" class="pointer-events-auto w-full max-w-lg mx-auto flex items-center justify-between gap-3 bg-chocolate-800 text-white rounded-2xl shadow-2xl px-5 py-3.5 border border-chocolate-600">
+      <div class="flex items-center gap-3">
+        <span class="bg-white text-chocolate-900 font-bold text-sm w-8 h-8 rounded-full flex items-center justify-center" id="cartCountBadge">0</span>
+        <span class="font-semibold text-sm sm:text-base">عرض السلة</span>
+      </div>
+      <div class="text-left text-sm sm:text-base font-bold" id="cartTotalBar">0 ₺</div>
+    </button>
+  </div>
+
+  <div id="cartModal" class="fixed inset-0 z-[120] hidden bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="bg-white w-full sm:max-w-md sm:rounded-2xl rounded-t-2xl shadow-2xl max-h-[90vh] flex flex-col fade-in">
+      <div class="bg-chocolate-800 text-white px-5 py-4 rounded-t-2xl flex justify-between items-center shrink-0">
+        <h2 class="text-lg font-bold">سلة المشتريات</h2>
+        <button type="button" id="closeCart" class="text-2xl leading-none">×</button>
+      </div>
+      <div id="cartItemsList" class="flex-1 overflow-y-auto p-4 space-y-3"></div>
+      <div class="border-t p-4 space-y-3 shrink-0 bg-chocolate-50">
+        <div>
+          <label class="block text-sm font-medium mb-1 text-chocolate-800">ملاحظات / رقم الطاولة (اختياري)</label>
+          <textarea id="cartNotes" rows="2" class="w-full border border-chocolate-200 rounded-xl px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-chocolate-400" placeholder="مثال: طاولة 5 — بدون مكسرات"></textarea>
+        </div>
+        <div class="flex justify-between items-center font-bold text-chocolate-900">
+          <span>المجموع</span>
+          <span id="cartGrandTotal" class="text-lg">0 ₺</span>
+        </div>
+        <button type="button" id="sendWhatsappOrder" class="w-full bg-[#25D366] hover:bg-[#1da851] text-white font-bold py-3.5 rounded-xl shadow-lg flex items-center justify-center gap-2">
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.435 9.884-9.85 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          تأكيد وإرسال الطلب عبر الواتساب
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="fixed bottom-24 left-1/2 -translate-x-1/2 bg-chocolate-800 text-white px-6 py-3 rounded-full opacity-0 transition-opacity z-[200] text-sm">تم</div>
   <script>
     const SUPABASE_URL = 'https://pfslgeehnliczddigdtw.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_X6qLBG-YzlQExyDq6Wix_Q_rzc5g77b';
@@ -96,6 +135,124 @@
     const STORAGE_BUCKET = 'menu-images';
     let settings = {}, items = [], sections = [], activeCategory = null, currentEditId = null;
     let isAdminUnlocked = sessionStorage.getItem('ruknAdminUnlocked') === 'yes';
+    let cart = {};
+    try { cart = JSON.parse(sessionStorage.getItem('ruknCart')||'{}') || {}; } catch(e){ cart = {}; }
+    function saveCart(){ try{ sessionStorage.setItem('ruknCart', JSON.stringify(cart)); }catch(e){} }
+    function cartList(){ return Object.values(cart).filter(x=>x && x.qty>0); }
+    function cartCount(){ return cartList().reduce((s,x)=>s+(x.qty||0),0); }
+    function cartTotals(){
+      let t=0, s=0;
+      cartList().forEach(x=>{ t+=(Number(x.price_try)||0)*(x.qty||0); s+=(Number(x.price_syp)||0)*(x.qty||0); });
+      return { try:t, syp:s };
+    }
+    function formatMoney(tryAmt, sypAmt){
+      const a = Number(tryAmt)||0, b=Number(sypAmt)||0;
+      if(a>0 && b>0) return a+' ₺ | '+b+' ل.س';
+      if(a>0) return a+' ₺';
+      if(b>0) return b+' ل.س';
+      return '0';
+    }
+    function updateCartUI(){
+      const n=cartCount();
+      const tot=cartTotals();
+      const bar=document.getElementById('floatingCart');
+      const badge=document.getElementById('cartCountBadge');
+      const totalEl=document.getElementById('cartTotalBar');
+      const grand=document.getElementById('cartGrandTotal');
+      if(badge) badge.textContent=String(n);
+      const money=formatMoney(tot.try, tot.syp);
+      if(totalEl) totalEl.textContent=money;
+      if(grand) grand.textContent=money;
+      if(bar){ if(n>0) bar.classList.add('show'); else bar.classList.remove('show'); }
+      document.querySelectorAll('[data-item-id]').forEach(el=>{
+        const id=el.getAttribute('data-item-id');
+        const q=(cart[id]&&cart[id].qty)||0;
+        const qtyEl=el.querySelector('.qty-value');
+        const controls=el.querySelector('.qty-controls');
+        const addOnly=el.querySelector('.qty-add-only');
+        if(qtyEl) qtyEl.textContent=String(q);
+        if(controls && addOnly){
+          if(q>0){ controls.classList.remove('hidden'); addOnly.classList.add('hidden'); }
+          else { controls.classList.add('hidden'); addOnly.classList.remove('hidden'); }
+        }
+      });
+    }
+    function addToCart(item, delta){
+      if(!item || !item.id) return;
+      const id=String(item.id);
+      if(!cart[id]) cart[id]={ id:id, name:item.name||'', price_try:Number(item.price_try)||0, price_syp:Number(item.price_syp)||0, qty:0 };
+      cart[id].qty = Math.max(0, (cart[id].qty||0) + delta);
+      if(cart[id].qty===0) delete cart[id];
+      saveCart();
+      updateCartUI();
+      renderCartModal();
+    }
+    function renderCartModal(){
+      const list=document.getElementById('cartItemsList');
+      if(!list) return;
+      const rows=cartList();
+      if(!rows.length){
+        list.innerHTML='<p class="text-center text-chocolate-500 py-8 text-sm">السلة فارغة</p>';
+        return;
+      }
+      list.innerHTML=rows.map(x=>{
+        const lineTry=(Number(x.price_try)||0)*(x.qty||0);
+        const lineSyp=(Number(x.price_syp)||0)*(x.qty||0);
+        return '<div class="flex items-center gap-3 bg-white border border-chocolate-100 rounded-xl p-3" data-cart-id="'+x.id+'">'
+          +'<div class="flex-1 min-w-0"><p class="font-bold text-chocolate-900 truncate">'+x.name+'</p>'
+          +'<p class="text-xs text-chocolate-600 mt-0.5">'+formatMoney(lineTry,lineSyp)+'</p></div>'
+          +'<div class="flex items-center gap-1.5 shrink-0">'
+          +'<button type="button" class="qty-btn bg-chocolate-100 text-chocolate-800 cart-minus" data-id="'+x.id+'">−</button>'
+          +'<span class="w-7 text-center font-bold text-sm">'+x.qty+'</span>'
+          +'<button type="button" class="qty-btn bg-chocolate-700 text-white cart-plus" data-id="'+x.id+'">+</button>'
+          +'</div></div>';
+      }).join('');
+      list.querySelectorAll('.cart-minus').forEach(b=>b.onclick=()=>{ const id=b.getAttribute('data-id'); if(cart[id]) addToCart(cart[id], -1); });
+      list.querySelectorAll('.cart-plus').forEach(b=>b.onclick=()=>{ const id=b.getAttribute('data-id'); if(cart[id]) addToCart(cart[id], 1); });
+    }
+    function getWhatsappNumber(){
+      let v=(settings.whatsapp||'').trim();
+      if(v){
+        if(/wa\.me\//i.test(v)||/api\.whatsapp\.com/i.test(v)){
+          const m=v.match(/(\d{8,15})/);
+          if(m) return m[1];
+        }
+        const d=v.replace(/[^0-9]/g,'');
+        if(d) return d;
+      }
+      const p1=(settings.shop1_phone||'').replace(/[^0-9]/g,'');
+      if(p1) return p1;
+      const p2=(settings.shop2_phone||'').replace(/[^0-9]/g,'');
+      if(p2) return p2;
+      return '';
+    }
+    function buildOrderMessage(){
+      const rows=cartList();
+      const site=settings.site_name||'ركن الشوكلاتة';
+      const lines=[];
+      lines.push('مرحباً '+site+'، أود طلب الآتي:');
+      lines.push('');
+      rows.forEach(x=>{
+        const lineTry=(Number(x.price_try)||0)*(x.qty||0);
+        const lineSyp=(Number(x.price_syp)||0)*(x.qty||0);
+        const priceStr=formatMoney(lineTry,lineSyp);
+        lines.push('ـ '+x.qty+' × '+x.name+' ('+priceStr+')');
+      });
+      const notes=(document.getElementById('cartNotes')&&document.getElementById('cartNotes').value||'').trim();
+      lines.push('');
+      if(notes){ lines.push('الملاحظات: '+notes); lines.push(''); }
+      const tot=cartTotals();
+      lines.push('المجموع الإجمالي: '+formatMoney(tot.try, tot.syp));
+      return lines.join('\n');
+    }
+    function sendWhatsappOrder(){
+      if(!cartCount()){ alert('السلة فارغة'); return; }
+      const phone=getWhatsappNumber();
+      if(!phone){ alert('لم يتم ضبط رقم واتساب في الإعدادات. أضف رقم واتساب من لوحة التحكم.'); return; }
+      const msg=buildOrderMessage();
+      const url='https://wa.me/'+phone+'?text='+encodeURIComponent(msg);
+      window.open(url,'_blank');
+    }
     function toPublicUrl(url){
       if(!url)return '';
       url=String(url).trim();
@@ -107,7 +264,7 @@
     function showToast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.remove('opacity-0');t.classList.add('opacity-100');setTimeout(()=>{t.classList.add('opacity-0');t.classList.remove('opacity-100')},2500)}
     function groupIntoSections(list){const map={};list.forEach(item=>{const cat=item.category||'عام';if(!map[cat])map[cat]={title:cat,icon:item.category_icon||'🍽️',items:[]};map[cat].items.push(item);if(item.category_icon)map[cat].icon=item.category_icon});return Object.values(map)}
     async function loadSettings(){const {data,error}=await sbClient.from('site_settings').select('key,value');if(error){console.error(error);return}settings={};(data||[]).forEach(r=>settings[r.key]=r.value);applySettings()}
-    async function loadItems(){const {data,error}=await sbClient.from('menu_items').select('*').order('sort_order',{ascending:true});if(error){document.getElementById('menuContainer').innerHTML='<div class="text-center py-20 text-red-600">خطأ: '+error.message+'</div>';return}items=data||[];sections=groupIntoSections(items);if(!activeCategory&&sections.length)activeCategory=sections[0].title;if(activeCategory&&!sections.find(s=>s.title===activeCategory))activeCategory=sections.length?sections[0].title:null;renderCategoryBar();renderActiveSection();if(isAdminUnlocked)renderSectionsManager()}
+    async function loadItems(){const {data,error}=await sbClient.from('menu_items').select('*').order('sort_order',{ascending:true});if(error){document.getElementById('menuContainer').innerHTML='<div class="text-center py-20 text-red-600">خطأ: '+error.message+'</div>';return}items=data||[];sections=groupIntoSections(items);if(!activeCategory&&sections.length)activeCategory=sections[0].title;if(activeCategory&&!sections.find(s=>s.title===activeCategory))activeCategory=sections.length?sections[0].title:null;renderCategoryBar();renderActiveSection();if(isAdminUnlocked)renderSectionsManager();updateCartUI()}
     async function loadAll(){await loadSettings();await loadItems()}
     function applySettings(){
       const name=settings.site_name||'ركن الشوكلاتة';
@@ -143,7 +300,53 @@
       if(fbU){fb.href=fbU;fb.classList.remove('hidden')}else fb.classList.add('hidden');
     }
     function renderCategoryBar(){const bar=document.getElementById('categoryBar');bar.innerHTML='';sections.forEach(sec=>{const btn=document.createElement('button');btn.className='cat-btn px-4 py-2 rounded-full text-sm font-semibold border border-chocolate-200 '+(sec.title===activeCategory?'active':'bg-white text-chocolate-800');btn.innerHTML=sec.icon+' '+sec.title;btn.onclick=()=>{activeCategory=sec.title;renderCategoryBar();renderActiveSection()};bar.appendChild(btn)})}
-    function renderActiveSection(){const container=document.getElementById('menuContainer');container.innerHTML='';const section=sections.find(s=>s.title===activeCategory);if(!section){container.innerHTML='<p class="text-center text-chocolate-500 py-20">لا توجد أصناف</p>';return}const wrapper=document.createElement('div');wrapper.className='fade-in';wrapper.innerHTML='<div class="flex items-center gap-3 mb-6"><span class="text-3xl">'+section.icon+'</span><h2 class="text-2xl font-bold">'+section.title+'</h2></div><div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5" id="itemsGrid"></div>';container.appendChild(wrapper);const grid=document.getElementById('itemsGrid');section.items.forEach(item=>{const card=document.createElement('div');card.className='bg-white rounded-2xl overflow-hidden shadow-md card-hover border border-chocolate-100';const rawImg=item.image_url||'https://images.unsplash.com/photo-1551024601-bec78aea704b?w=600&h=400&fit=crop';const img=cacheBust(rawImg);card.innerHTML='<div class="relative h-48 overflow-hidden bg-chocolate-100"><img src="'+img+'" class="fade-img w-full h-full object-cover" loading="lazy" alt="" onload="this.classList.add(\'is-loaded\')"><div class="absolute top-3 left-3 bg-chocolate-800/90 text-white text-xs font-bold px-2.5 py-1.5 rounded-full">'+(item.price_try||0)+' ₺ | '+(item.price_syp||0)+' ل.س</div></div><div class="p-4"><h3 class="font-bold text-lg mb-1">'+(item.name||'')+'</h3><p class="text-sm text-chocolate-600 line-clamp-2">'+(item.description||'')+'</p>'+(isAdminUnlocked?'<button class="edit-btn mt-3 w-full bg-chocolate-100 py-2 rounded-lg text-sm" data-id="'+item.id+'">✏️ تعديل</button>':'')+'</div>';grid.appendChild(card)});if(isAdminUnlocked){const addBtn=document.createElement('div');addBtn.className='bg-chocolate-50 border-2 border-dashed border-chocolate-300 rounded-2xl flex flex-col items-center justify-center min-h-[280px] cursor-pointer';addBtn.innerHTML='<span class="text-4xl mb-2">➕</span><span class="font-semibold">إضافة صنف</span>';addBtn.onclick=()=>openEditItem(null,activeCategory);grid.appendChild(addBtn);document.querySelectorAll('.edit-btn').forEach(btn=>{btn.onclick=()=>openEditItem(btn.dataset.id)})}}
+    function renderActiveSection(){
+      const container=document.getElementById('menuContainer');container.innerHTML='';
+      const section=sections.find(s=>s.title===activeCategory);
+      if(!section){container.innerHTML='<p class="text-center text-chocolate-500 py-20">لا توجد أصناف</p>';return}
+      const wrapper=document.createElement('div');wrapper.className='fade-in';
+      wrapper.innerHTML='<div class="flex items-center gap-3 mb-6"><span class="text-3xl">'+section.icon+'</span><h2 class="text-2xl font-bold">'+section.title+'</h2></div><div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5" id="itemsGrid"></div>';
+      container.appendChild(wrapper);
+      const grid=document.getElementById('itemsGrid');
+      section.items.forEach(item=>{
+        const card=document.createElement('div');
+        card.className='bg-white rounded-2xl overflow-hidden shadow-md card-hover border border-chocolate-100';
+        card.setAttribute('data-item-id', String(item.id));
+        const rawImg=item.image_url||'https://images.unsplash.com/photo-1551024601-bec78aea704b?w=600&h=400&fit=crop';
+        const img=cacheBust(rawImg);
+        const q=(cart[String(item.id)]&&cart[String(item.id)].qty)||0;
+        const qtyBlock =
+          '<div class="mt-3 flex items-center justify-between gap-2">'
+          +'<div class="qty-add-only '+(q>0?'hidden':'')+'">'
+          +'<button type="button" class="add-one bg-chocolate-700 hover:bg-chocolate-800 text-white text-sm font-bold px-4 py-2 rounded-full">+ إضافة</button>'
+          +'</div>'
+          +'<div class="qty-controls flex items-center gap-2 '+(q>0?'':'hidden')+'">'
+          +'<button type="button" class="qty-btn bg-chocolate-100 text-chocolate-800 qty-minus">−</button>'
+          +'<span class="qty-value font-bold text-chocolate-900 w-6 text-center">'+q+'</span>'
+          +'<button type="button" class="qty-btn bg-chocolate-700 text-white qty-plus">+</button>'
+          +'</div>'
+          +(isAdminUnlocked?'<button type="button" class="edit-btn text-xs bg-chocolate-100 px-2 py-1.5 rounded-lg">✏️</button>':'')
+          +'</div>';
+        card.innerHTML='<div class="relative h-48 overflow-hidden bg-chocolate-100"><img src="'+img+'" class="fade-img w-full h-full object-cover" loading="lazy" alt="" onload="this.classList.add(\'is-loaded\')"><div class="absolute top-3 left-3 bg-chocolate-800/90 text-white text-xs font-bold px-2.5 py-1.5 rounded-full">'+(item.price_try||0)+' ₺ | '+(item.price_syp||0)+' ل.س</div></div><div class="p-4"><h3 class="font-bold text-lg mb-1">'+(item.name||'')+'</h3><p class="text-sm text-chocolate-600 line-clamp-2">'+(item.description||'')+'</p>'+qtyBlock+'</div>';
+        grid.appendChild(card);
+        const addBtn=card.querySelector('.add-one');
+        const plusBtn=card.querySelector('.qty-plus');
+        const minusBtn=card.querySelector('.qty-minus');
+        if(addBtn) addBtn.onclick=(e)=>{e.stopPropagation();addToCart(item,1)};
+        if(plusBtn) plusBtn.onclick=(e)=>{e.stopPropagation();addToCart(item,1)};
+        if(minusBtn) minusBtn.onclick=(e)=>{e.stopPropagation();addToCart(item,-1)};
+        const editBtn=card.querySelector('.edit-btn');
+        if(editBtn) editBtn.onclick=(e)=>{e.stopPropagation();openEditItem(item.id)};
+      });
+      if(isAdminUnlocked){
+        const addBtn=document.createElement('div');
+        addBtn.className='bg-chocolate-50 border-2 border-dashed border-chocolate-300 rounded-2xl flex flex-col items-center justify-center min-h-[280px] cursor-pointer';
+        addBtn.innerHTML='<span class="text-4xl mb-2">➕</span><span class="font-semibold">إضافة صنف</span>';
+        addBtn.onclick=()=>openEditItem(null,activeCategory);
+        grid.appendChild(addBtn);
+      }
+      updateCartUI();
+    }
     let logoClickCount=0,logoClickTimer=null;
     function goHomeMenu(e){
       if(e)e.preventDefault();
@@ -204,6 +407,11 @@
     document.getElementById('saveSiteSettings').onclick=async()=>{const pairs={site_name:document.getElementById('editSiteName').value.trim()||'ركن الشوكلاتة',logo:toPublicUrl(document.getElementById('editLogo').value.trim()),favicon:toPublicUrl(document.getElementById('editFavicon').value.trim()),cover:toPublicUrl(document.getElementById('editCover').value.trim()),shop1_name:document.getElementById('editShop1Name').value.trim(),shop1_phone:document.getElementById('editShop1Phone').value.trim(),shop2_name:document.getElementById('editShop2Name').value.trim(),shop2_phone:document.getElementById('editShop2Phone').value.trim(),footer_desc:document.getElementById('editFooterDesc').value.trim(),whatsapp:document.getElementById('editWhatsapp').value.trim(),instagram:document.getElementById('editInstagram').value.trim(),facebook:document.getElementById('editFacebook').value.trim()};const np=document.getElementById('newAdminPassword').value.trim();const cp=document.getElementById('confirmAdminPassword').value.trim();if(np){if(np!==cp){alert('كلمة السر غير متطابقة');return}if(np.length<3){alert('3 أحرف على الأقل');return}pairs.admin_password=np}for(const [k,v] of Object.entries(pairs)){const err=await upsertSetting(k,v);if(err){alert('خطأ '+k+': '+err.message);return}}document.getElementById('newAdminPassword').value='';document.getElementById('confirmAdminPassword').value='';showToast('تم حفظ الإعدادات ✓');await loadSettings()};
     document.getElementById('adminModal').onclick=e=>{if(e.target.id==='adminModal')document.getElementById('adminModal').classList.add('hidden')};
     document.getElementById('editItemModal').onclick=e=>{if(e.target.id==='editItemModal')document.getElementById('editItemModal').classList.add('hidden')};
+    document.getElementById('openCartBtn').onclick=()=>{document.getElementById('cartModal').classList.remove('hidden');renderCartModal();};
+    document.getElementById('closeCart').onclick=()=>document.getElementById('cartModal').classList.add('hidden');
+    document.getElementById('cartModal').onclick=e=>{if(e.target.id==='cartModal')document.getElementById('cartModal').classList.add('hidden')};
+    document.getElementById('sendWhatsappOrder').onclick=sendWhatsappOrder;
+    updateCartUI();
     loadAll();
   </script>
 </body>
