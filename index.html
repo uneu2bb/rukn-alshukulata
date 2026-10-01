@@ -39,6 +39,9 @@ img.fade-img{opacity:0;transition:opacity .45s ease}img.fade-img.is-loaded{opaci
 .toggle-switch input:checked+.toggle-slider{background:#16a34a}
 .toggle-switch input:checked+.toggle-slider:before{transform:translateX(26px)}
 .cat-order-row{transition:box-shadow .15s,opacity .15s}.cat-order-row.opacity-50{opacity:.5}
+#menuContainer.swipe-touch{touch-action:pan-y}
+#menuContainer .swipe-section{animation:swipeIn .28s cubic-bezier(.2,.8,.2,1) both}
+@keyframes swipeIn{from{opacity:0;transform:translateX(var(--swipe-x,14px))}to{opacity:1;transform:translateX(0)}}
 </style>
 </head>
 <body class="bg-chocolate-50 text-chocolate-900">
@@ -179,7 +182,7 @@ function applyShopStatus(){
   if(closedMsg){if(open)closedMsg.classList.add('hidden');else closedMsg.classList.remove('hidden')}
 }
 function applySettings(){isShopOpen=!(settings.is_open==='false'||settings.is_open===false||settings.is_open==='0');const name=settings.site_name||'ركن الشوكلاتة';document.getElementById('siteName').textContent=name;document.getElementById('footerName').textContent=name;document.title=name;const logoEl=document.getElementById('siteLogo');function revealImg(el,url,fallback){if(!el)return;const src=url?cacheBust(url):(fallback||'');if(!src){el.style.opacity='0';return}el.onload=function(){el.style.opacity='1'};el.onerror=function(){if(fallback&&el.src.indexOf(fallback)<0)el.src=fallback;else el.style.opacity='0'};el.style.opacity='0';el.src=src;if(el.complete&&el.naturalWidth)el.style.opacity='1'}revealImg(logoEl,settings.logo,'https://images.unsplash.com/photo-1606312619070-d48b4c652a52?w=160&h=160&fit=crop');const fav=settings.favicon||settings.logo||'';const fl=document.getElementById('siteFavicon');if(fl&&fav)fl.href=cacheBust(fav);const hero=document.getElementById('heroCover');if(hero)revealImg(hero,settings.cover||'https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=1600&h=900&fit=crop','');const fd=document.getElementById('footerDesc');if(settings.footer_desc){fd.textContent=settings.footer_desc;fd.classList.remove('hidden')}else{fd.textContent='';fd.classList.add('hidden')}const s1b=document.getElementById('shop1Box');if(settings.shop1_name||settings.shop1_phone){s1b.classList.remove('hidden');document.getElementById('shop1NameEl').textContent=settings.shop1_name||'';const ph=(settings.shop1_phone||'').trim();const a=document.getElementById('shop1PhoneEl');a.textContent=ph;a.href=ph?('tel:'+ph.replace(/\s/g,'')):'#'}else s1b.classList.add('hidden');const s2b=document.getElementById('shop2Box');if(settings.shop2_name||settings.shop2_phone){s2b.classList.remove('hidden');document.getElementById('shop2NameEl').textContent=settings.shop2_name||'';const ph=(settings.shop2_phone||'').trim();const a=document.getElementById('shop2PhoneEl');a.textContent=ph;a.href=ph?('tel:'+ph.replace(/\s/g,'')):'#'}else s2b.classList.add('hidden');function normWa(v){v=(v||'').trim();if(!v)return'';if(/^https?:\/\//i.test(v)||v.includes('wa.me'))return v.startsWith('http')?v:('https://'+v);const d=v.replace(/[^0-9]/g,'');return d?('https://wa.me/'+d):''}function normIg(v){v=(v||'').trim();if(!v)return'';if(/^https?:\/\//i.test(v))return v;return'https://instagram.com/'+v.replace(/^@/,'')}function normFb(v){v=(v||'').trim();if(!v)return'';if(/^https?:\/\//i.test(v))return v;return'https://facebook.com/'+v.replace(/^@/,'')}const wa=document.getElementById('socialWhatsapp'),ig=document.getElementById('socialInstagram'),fb=document.getElementById('socialFacebook');const waU=normWa(settings.whatsapp),igU=normIg(settings.instagram),fbU=normFb(settings.facebook);if(waU){wa.href=waU;wa.classList.remove('hidden')}else wa.classList.add('hidden');if(igU){ig.href=igU;ig.classList.remove('hidden')}else ig.classList.add('hidden');if(fbU){fb.href=fbU;fb.classList.remove('hidden')}else fb.classList.add('hidden');applyShopStatus()}
-function renderCategoryBar(){const bar=document.getElementById('categoryBar');bar.innerHTML='';sections.forEach(sec=>{const btn=document.createElement('button');btn.className='cat-btn px-4 py-2 rounded-full text-sm font-semibold border border-chocolate-200 '+(sec.title===activeCategory?'active':'bg-white text-chocolate-800');btn.textContent=sec.title;btn.onclick=()=>{activeCategory=sec.title;renderCategoryBar();renderActiveSection()};bar.appendChild(btn)})}
+function renderCategoryBar(){const bar=document.getElementById('categoryBar');if(!bar)return;bar.innerHTML='';sections.forEach(sec=>{const btn=document.createElement('button');const active=sec.title===activeCategory;btn.className='cat-btn px-4 py-2 rounded-full text-sm font-semibold border border-chocolate-200 '+(active?'active':'bg-white text-chocolate-800');btn.textContent=sec.title;btn.setAttribute('data-cat',sec.title);btn.onclick=()=>{if(activeCategory===sec.title)return;window.__swipeDir=0;activeCategory=sec.title;renderCategoryBar();renderActiveSection()};bar.appendChild(btn);if(active){try{btn.scrollIntoView({behavior:'smooth',inline:'center',block:'nearest'})}catch(e){}}})}
 async function persistSortOrder(orderedIds){for(let i=0;i<orderedIds.length;i++){const id=orderedIds[i];await sbClient.from('menu_items').update({sort_order:i+1}).eq('id',id);const it=items.find(x=>String(x.id)===String(id));if(it)it.sort_order=i+1}showToast('تم حفظ الترتيب ✓');rebuildSections()}
 function enableCardDrag(card,item){if(!isAdminUnlocked)return;card.setAttribute('draggable','true');card.classList.add('drag-handle');
 card.addEventListener('dragstart',function(e){e.dataTransfer.setData('text/plain',String(item.id));e.dataTransfer.effectAllowed='move';card.classList.add('card-dragging')});
@@ -210,16 +213,19 @@ function renderItemCard(grid,item,idx){
 }
 function renderActiveSection(){
   const container=document.getElementById('menuContainer');container.innerHTML='';
+  const dir=window.__swipeDir||0;
+  container.style.setProperty('--swipe-x', dir>0?'18px':(dir<0?'-18px':'10px'));
+  window.__swipeDir=0;
   const results=getSearchResults();
   if(results!==null){
     if(!results.length){container.innerHTML='<div class="fade-in max-w-md mx-auto text-center py-16 px-6"><div class="bg-white border rounded-2xl shadow-sm p-8"><div class="text-4xl mb-3">🔍</div><p class="font-bold text-lg mb-2">عذراً، هذا الصنف غير متوفر حالياً</p></div></div>';return}
-    const wrapper=document.createElement('div');wrapper.className='fade-in';
+    const wrapper=document.createElement('div');wrapper.className='fade-in swipe-section';
     wrapper.innerHTML='<div class="flex items-center gap-3 mb-6"><span class="text-3xl">🔎</span><h2 class="text-2xl font-bold">نتائج البحث ('+results.length+')</h2></div><div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5" id="itemsGrid"></div>';
     container.appendChild(wrapper);results.forEach((item,idx)=>renderItemCard(document.getElementById('itemsGrid'),item,idx));updateCartUI();return;
   }
   const section=sections.find(s=>s.title===activeCategory);
   if(!section){container.innerHTML='<p class="text-center text-chocolate-500 py-20">لا توجد أصناف</p>';return}
-  const wrapper=document.createElement('div');wrapper.className='fade-in';
+  const wrapper=document.createElement('div');wrapper.className='fade-in swipe-section';
   wrapper.innerHTML='<div class="flex items-center gap-3 mb-6 flex-wrap"><h2 class="text-2xl font-bold">'+section.title+'</h2>'+(isAdminUnlocked?'<span class="text-xs bg-chocolate-100 text-chocolate-700 px-2 py-1 rounded-full">اسحب البطاقة لترتيب الأصناف</span>':'')+'</div><div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5" id="itemsGrid"></div>';
   container.appendChild(wrapper);const grid=document.getElementById('itemsGrid');
   section.items.forEach((item,idx)=>renderItemCard(grid,item,idx));
@@ -413,7 +419,61 @@ if(clearBtn){clearBtn.onclick=function(){searchQuery='';if(searchInput)searchInp
 const shopToggle=document.getElementById('shopOpenToggle');
 if(shopToggle){shopToggle.addEventListener('change',async function(){const open=!!this.checked;isShopOpen=open;applyShopStatus();const err=await upsertSetting('is_open',open?'true':'false');if(err){alert('تعذر حفظ الحالة: '+err.message);this.checked=!open;isShopOpen=!open;applyShopStatus();return}showToast(open?'المقهى مفتوح الآن 🟢':'المقهى مغلق الآن 🔴');renderActiveSection()})}
 sbClient.channel('shop-status').on('postgres_changes',{event:'*',schema:'public',table:'site_settings'},payload=>{const row=payload.new||payload.record;if(row&&row.key==='is_open'){isShopOpen=!(row.value==='false'||row.value===false||row.value==='0');applyShopStatus();renderActiveSection()}}).subscribe();
-updateCartUI();loadAll();
+
+function goToCategoryByOffset(offset){
+  if(!sections||!sections.length) return;
+  if(searchQuery&&searchQuery.trim()) return; // لا سحب أثناء البحث
+  let idx=sections.findIndex(s=>s.title===activeCategory);
+  if(idx<0) idx=0;
+  const next=idx+offset;
+  if(next<0||next>=sections.length) return;
+  window.__swipeDir=offset>0?1:-1;
+  activeCategory=sections[next].title;
+  renderCategoryBar();
+  renderActiveSection();
+  try{window.scrollTo({top:document.getElementById('categoryBar')?document.getElementById('categoryBar').getBoundingClientRect().top+window.scrollY-80:0,behavior:'smooth'})}catch(e){}
+}
+function initCategorySwipe(){
+  const el=document.getElementById('menuContainer');
+  if(!el||el.dataset.swipeBound==='1') return;
+  el.dataset.swipeBound='1';
+  el.classList.add('swipe-touch');
+  let startX=0,startY=0,tracking=false,locked=null;
+  const THRESH=55;
+  el.addEventListener('touchstart',function(e){
+    if(isAdminUnlocked) return; // لا تعارض مع سحب ترتيب الأصناف في وضع الأدمن
+    if(searchQuery&&searchQuery.trim()) return;
+    if(e.touches.length!==1) return;
+    const t=e.touches[0];
+    startX=t.clientX; startY=t.clientY;
+    tracking=true; locked=null;
+  },{passive:true});
+  el.addEventListener('touchmove',function(e){
+    if(!tracking||isAdminUnlocked) return;
+    if(e.touches.length!==1) return;
+    const t=e.touches[0];
+    const dx=t.clientX-startX, dy=t.clientY-startY;
+    if(locked===null&&(Math.abs(dx)>12||Math.abs(dy)>12)){
+      locked=Math.abs(dx)>Math.abs(dy)?'h':'v';
+    }
+  },{passive:true});
+  el.addEventListener('touchend',function(e){
+    if(!tracking||isAdminUnlocked){tracking=false;return}
+    tracking=false;
+    if(locked!=='h') return;
+    const t=e.changedTouches[0];
+    const dx=t.clientX-startX;
+    if(Math.abs(dx)<THRESH) return;
+    // في RTL: السحب لليسار (dx سالب) = القسم التالي غالباً حسب ترتيب القائمة
+    // نعكس بلطف: swipe left -> next, swipe right -> prev
+    if(dx<0) goToCategoryByOffset(1);
+    else goToCategoryByOffset(-1);
+  },{passive:true});
+  el.addEventListener('touchcancel',function(){tracking=false;locked=null},{passive:true});
+}
+
+updateCartUI();loadAll();initCategorySwipe();
+
 </script>
 </body>
 </html>
