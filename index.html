@@ -42,6 +42,26 @@ img.fade-img{opacity:0;transition:opacity .45s ease}img.fade-img.is-loaded{opaci
 #menuContainer.swipe-touch{touch-action:pan-y}
 #menuContainer .swipe-section{animation:swipeIn .28s cubic-bezier(.2,.8,.2,1) both}
 @keyframes swipeIn{from{opacity:0;transform:translateX(var(--swipe-x,14px))}to{opacity:1;transform:translateX(0)}}
+
+/* Login modal - smooth sheet */
+#loginModal{transition:opacity .25s ease}
+#loginModal.hidden{pointer-events:none;opacity:0}
+#loginModal:not(.hidden){opacity:1}
+#loginModal .login-sheet{
+  transform:translateY(28px) scale(.98);
+  opacity:0;
+  transition:transform .35s cubic-bezier(.2,.8,.2,1),opacity .3s ease;
+}
+#loginModal.show .login-sheet{
+  transform:translateY(0) scale(1);
+  opacity:1;
+}
+#loginModal .login-backdrop{transition:opacity .3s ease}
+.login-input:focus{outline:none;box-shadow:0 0 0 3px rgba(132,99,88,.25);border-color:#846358}
+.login-btn{transition:transform .15s ease,background .2s}
+.login-btn:active{transform:scale(.98)}
+.login-error{animation:loginShake .35s ease}
+@keyframes loginShake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
 </style>
 </head>
 <body class="bg-chocolate-50 text-chocolate-900">
@@ -92,6 +112,31 @@ img.fade-img{opacity:0;transition:opacity .45s ease}img.fade-img.is-loaded{opaci
 <a id="socialInstagram" href="#" target="_blank" rel="noopener noreferrer" class="hidden w-12 h-12 rounded-full bg-gradient-to-br from-[#f09433] via-[#e6683c] to-[#bc1888] hover:scale-110 transition shadow-lg flex items-center justify-center" title="إنستغرام"><svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg></a>
 <a id="socialFacebook" href="#" target="_blank" rel="noopener noreferrer" class="hidden w-12 h-12 rounded-full bg-[#1877F2] hover:scale-110 transition shadow-lg flex items-center justify-center" title="فيسبوك"><svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></a>
 </div></div></footer>
+
+
+<!-- Admin Login Modal -->
+<div id="loginModal" class="fixed inset-0 z-[110] hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
+  <div class="login-backdrop absolute inset-0 bg-chocolate-950/55 backdrop-blur-md" id="loginBackdrop"></div>
+  <div class="login-sheet relative bg-white w-full sm:max-w-md sm:rounded-3xl rounded-t-3xl shadow-2xl overflow-hidden">
+    <div class="px-6 pt-5 pb-2 flex items-center justify-between border-b border-chocolate-100">
+      <h2 class="text-xl font-bold text-chocolate-900">لوحة التحكم</h2>
+      <button type="button" id="closeLoginModal" class="w-9 h-9 rounded-full bg-chocolate-50 text-chocolate-700 text-xl flex items-center justify-center hover:bg-chocolate-100" aria-label="إغلاق">×</button>
+    </div>
+    <div class="px-6 py-6 space-y-5">
+      <p class="text-chocolate-600 text-sm leading-relaxed">أدخل كلمة المرور للمتابعة إلى إعدادات الموقع والأصناف.</p>
+      <div>
+        <label for="loginPassword" class="block text-sm font-semibold text-chocolate-800 mb-2">كلمة المرور</label>
+        <input type="password" id="loginPassword" autocomplete="current-password"
+          class="login-input w-full border border-chocolate-200 rounded-2xl px-4 py-3.5 text-base bg-chocolate-50/50 text-chocolate-900 placeholder-chocolate-400"
+          placeholder="أدخل كلمة المرور">
+        <p id="loginError" class="hidden text-red-600 text-sm mt-2 font-medium">كلمة المرور غير صحيحة</p>
+      </div>
+      <button type="button" id="loginSubmit" class="login-btn w-full bg-chocolate-700 hover:bg-chocolate-800 text-white font-bold py-3.5 rounded-2xl text-base shadow-lg shadow-chocolate-700/20">
+        دخول
+      </button>
+    </div>
+  </div>
+</div>
 
 <div id="adminModal" class="fixed inset-0 z-[100] hidden bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"><div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl admin-panel fade-in"><div class="sticky top-0 bg-chocolate-800 text-white px-6 py-4 rounded-t-2xl flex justify-between items-center"><h2 class="text-xl font-bold">لوحة التحكم</h2><button id="closeAdmin" class="text-2xl">×</button></div>
 <div class="p-4 border-b border-chocolate-200 bg-chocolate-50">
@@ -234,7 +279,7 @@ function renderActiveSection(){
 }
 let logoClickCount=0,logoClickTimer=null;
 function goHomeMenu(e){if(e)e.preventDefault();window.scrollTo({top:0,behavior:'smooth'});if(sections.length){activeCategory=sections[0].title;renderCategoryBar();renderActiveSection()}}
-document.getElementById('logoHomeLink').onclick=function(e){logoClickCount++;clearTimeout(logoClickTimer);logoClickTimer=setTimeout(()=>{logoClickCount=0},2500);if(logoClickCount>=5){logoClickCount=0;e.preventDefault();if(!isAdminUnlocked){const entered=prompt('أدخل كلمة سر لوحة التحكم:');if(entered===null)return;if(entered!==(settings.admin_password||'2004')){alert('كلمة السر غير صحيحة');return}sessionStorage.setItem('ruknAdminUnlocked','yes');isAdminUnlocked=true;rebuildSections();renderCategoryBar();renderActiveSection();renderSectionsManager()}openAdminPanel();return}goHomeMenu(e)};
+document.getElementById('logoHomeLink').onclick=function(e){logoClickCount++;clearTimeout(logoClickTimer);logoClickTimer=setTimeout(()=>{logoClickCount=0},2500);if(logoClickCount>=5){logoClickCount=0;e.preventDefault();if(!isAdminUnlocked){openLoginModal();return}openAdminPanel();return}goHomeMenu(e)};
 function openAdminPanel(){document.getElementById('adminModal').classList.remove('hidden');const t=document.getElementById('shopOpenToggle');if(t)t.checked=isShopOpen!==false;const lb=document.getElementById('shopStatusLabel');if(lb)lb.textContent=isShopOpen!==false?'مفتوح 🟢':'مغلق 🔴';document.getElementById('editSiteName').value=settings.site_name||'';document.getElementById('editLogo').value=settings.logo||'';document.getElementById('editFavicon').value=settings.favicon||'';document.getElementById('editCover').value=settings.cover||'';document.getElementById('editShop1Name').value=settings.shop1_name||'';document.getElementById('editShop1Phone').value=settings.shop1_phone||'';document.getElementById('editShop2Name').value=settings.shop2_name||'';document.getElementById('editShop2Phone').value=settings.shop2_phone||'';document.getElementById('editFooterDesc').value=settings.footer_desc||'';document.getElementById('editWhatsapp').value=settings.whatsapp||'';document.getElementById('editInstagram').value=settings.instagram||'';document.getElementById('editFacebook').value=settings.facebook||'';const lp=document.getElementById('logoPreview');if(settings.logo){lp.src=toPublicUrl(settings.logo);lp.classList.remove('hidden')}else lp.classList.add('hidden');const fp=document.getElementById('faviconPreview');if(settings.favicon){fp.src=toPublicUrl(settings.favicon);fp.classList.remove('hidden')}else fp.classList.add('hidden');const cpv=document.getElementById('coverPreview');if(settings.cover){cpv.src=toPublicUrl(settings.cover);cpv.classList.remove('hidden')}else cpv.classList.add('hidden');renderSectionsManager()}
 document.getElementById('closeAdmin').onclick=()=>document.getElementById('adminModal').classList.add('hidden');
 function compressImage(file,options){return new Promise((resolve,reject)=>{if(!file||!file.type.startsWith('image/')){reject(new Error('ليس صورة'));return}const maxWidth=(options&&options.maxWidth)||800;const quality=(options&&options.quality)!=null?options.quality:0.7;const reader=new FileReader();reader.onload=()=>{const img=new Image();img.onload=()=>{let w=img.width,h=img.height;if(w>maxWidth){h=Math.round(h*(maxWidth/w));w=maxWidth}const canvas=document.createElement('canvas');canvas.width=w;canvas.height=h;const ctx=canvas.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,w,h);ctx.drawImage(img,0,0,w,h);function tryBlob(type,q){return new Promise(res=>canvas.toBlob(b=>res(b||null),type,q))}(async()=>{let type='image/webp';let blob=await tryBlob('image/webp',quality);if(!blob){type='image/jpeg';blob=await tryBlob('image/jpeg',quality)}if(!blob){reject(new Error('فشل'));return}let q=quality;while(blob.size>120*1024&&q>0.4){q-=0.1;const again=await tryBlob(type,q);if(again)blob=again;else break}resolve({blob,type,size:blob.size,ext:type==='image/webp'?'webp':'jpg',previewUrl:URL.createObjectURL(blob)})})()};img.src=reader.result};reader.readAsDataURL(file)})}
@@ -471,6 +516,59 @@ function initCategorySwipe(){
   },{passive:true});
   el.addEventListener('touchcancel',function(){tracking=false;locked=null},{passive:true});
 }
+
+
+function openLoginModal(){
+  const m=document.getElementById('loginModal');
+  if(!m) return;
+  const err=document.getElementById('loginError');
+  const inp=document.getElementById('loginPassword');
+  if(err){err.classList.add('hidden');err.classList.remove('login-error')}
+  if(inp){inp.value='';}
+  m.classList.remove('hidden');
+  requestAnimationFrame(()=>{
+    requestAnimationFrame(()=>m.classList.add('show'));
+  });
+  setTimeout(()=>{if(inp)inp.focus()},320);
+}
+function closeLoginModal(){
+  const m=document.getElementById('loginModal');
+  if(!m) return;
+  m.classList.remove('show');
+  setTimeout(()=>m.classList.add('hidden'),280);
+}
+function submitAdminLogin(){
+  const inp=document.getElementById('loginPassword');
+  const err=document.getElementById('loginError');
+  const entered=(inp&&inp.value)||'';
+  const ok=entered===(settings.admin_password||'2004');
+  if(!ok){
+    if(err){err.classList.remove('hidden');err.classList.add('login-error')}
+    if(inp){inp.classList.add('border-red-400');setTimeout(()=>inp.classList.remove('border-red-400'),600)}
+    return;
+  }
+  sessionStorage.setItem('ruknAdminUnlocked','yes');
+  isAdminUnlocked=true;
+  rebuildSections();
+  renderCategoryBar();
+  renderActiveSection();
+  renderSectionsManager();
+  closeLoginModal();
+  setTimeout(()=>openAdminPanel(),300);
+  showToast('مرحباً بك في لوحة التحكم');
+}
+(function bindLoginModal(){
+  const sub=document.getElementById('loginSubmit');
+  const closeBtn=document.getElementById('closeLoginModal');
+  const bd=document.getElementById('loginBackdrop');
+  const inp=document.getElementById('loginPassword');
+  if(sub) sub.onclick=submitAdminLogin;
+  if(closeBtn) closeBtn.onclick=closeLoginModal;
+  if(bd) bd.onclick=closeLoginModal;
+  if(inp) inp.addEventListener('keydown',function(e){
+    if(e.key==='Enter'){e.preventDefault();submitAdminLogin()}
+  });
+})();
 
 updateCartUI();loadAll();initCategorySwipe();
 
