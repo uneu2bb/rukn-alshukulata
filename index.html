@@ -346,6 +346,12 @@ body.has-cart-bar #branchesBtn{bottom:5.5rem}
 </div></div></div>
 <div id="toast" class="fixed bottom-24 left-1/2 -translate-x-1/2 bg-chocolate-800 text-white px-6 py-3 rounded-full opacity-0 transition-opacity z-[200] text-sm">تم</div>
 
+
+<!-- Floating Branches Button -->
+<button type="button" id="branchesBtn" data-action="open-branches" class="is-visible" aria-label="فروعنا" style="display:none">
+  <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+  فروعنا
+</button>
 <script>
 const SUPABASE_URL='https://pfslgeehnliczddigdtw.supabase.co';
 const SUPABASE_ANON_KEY='sb_publishable_X6qLBG-YzlQExyDq6Wix_Q_rzc5g77b';
@@ -823,7 +829,11 @@ function branchMapsLink(b){
 function applyBranchesUI(){
   const list=getBranches();
   const btn=document.getElementById('branchesBtn');
-  if(btn){if(list.length){btn.classList.add('is-visible');btn.style.display='inline-flex'}else{btn.classList.remove('is-visible');btn.style.display='none'}}
+  if(btn){
+    if(list.length){btn.classList.add('is-visible');btn.style.display='inline-flex'}
+    else{btn.classList.remove('is-visible');btn.style.display='none'}
+    btn.onclick=function(e){e.preventDefault();e.stopPropagation();openBranchesModal();};
+  }
   // إخفاء أسماء الفروع من أسفل الصفحة — العرض فقط عبر زر فروعنا
   const s1b=document.getElementById('shop1Box');
   const s2b=document.getElementById('shop2Box');
@@ -898,35 +908,47 @@ async function saveBranchForm(){
 }
 function openBranchesModal(){
   const list=getBranches();
-  if(!list.length){showToast('لا توجد فروع بعد');return}
   const box=document.getElementById('branchesList');
-  box.innerHTML='';
-  list.forEach(b=>{
-    const card=document.createElement('a');
-    card.href=branchMapsLink(b);
-    card.target='_blank';
-    card.rel='noopener noreferrer';
-    card.className='branch-card block bg-chocolate-50 hover:bg-chocolate-100 border border-chocolate-100 rounded-2xl p-4';
-    card.innerHTML='<div class="flex items-start gap-3">'
-      +'<div class="w-10 h-10 rounded-full bg-chocolate-700 text-white flex items-center justify-center shrink-0">'
-      +'<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg></div>'
-      +'<div class="flex-1 min-w-0"><p class="font-bold text-chocolate-900">'+((b.name||'فرع'))+'</p>'
-      +(b.address?'<p class="text-sm text-chocolate-600 mt-0.5">'+b.address+'</p>':'')
-      +(b.phone?'<p class="text-sm text-chocolate-500 mt-1" dir="ltr">'+b.phone+'</p>':'')
-      +'<p class="text-xs text-chocolate-700 font-semibold mt-2">افتح على الخريطة ←</p></div></div>';
-    box.appendChild(card);
-  });
   const m=document.getElementById('branchesModal');
+  if(!m||!box){showToast('تعذر فتح الفروع');return}
+  box.innerHTML='';
+  if(!list.length){
+    box.innerHTML='<p class="text-center text-chocolate-500 py-8 text-sm">لا توجد فروع مضافة بعد</p>';
+  } else {
+    list.forEach(b=>{
+      const card=document.createElement('a');
+      card.href=branchMapsLink(b);
+      card.target='_blank';
+      card.rel='noopener noreferrer';
+      card.className='branch-card block bg-chocolate-50 hover:bg-chocolate-100 border border-chocolate-100 rounded-2xl p-4';
+      card.innerHTML='<div class="flex items-start gap-3">'
+        +'<div class="w-10 h-10 rounded-full bg-chocolate-700 text-white flex items-center justify-center shrink-0">'
+        +'<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg></div>'
+        +'<div class="flex-1 min-w-0"><p class="font-bold text-chocolate-900">'+((b.name||'فرع'))+'</p>'
+        +(b.address?'<p class="text-sm text-chocolate-600 mt-0.5">'+b.address+'</p>':'')
+        +(b.phone?'<p class="text-sm text-chocolate-500 mt-1" dir="ltr">'+b.phone+'</p>':'')
+        +'<p class="text-xs text-chocolate-700 font-semibold mt-2">افتح على الخريطة ←</p></div></div>';
+      box.appendChild(card);
+    });
+  }
   m.classList.remove('hidden');
-  lockBodyScroll();
+  if(typeof lockBodyScroll==='function') lockBodyScroll();
   requestAnimationFrame(()=>requestAnimationFrame(()=>m.classList.add('show')));
 }
+
 function closeBranchesModal(){
   const m=document.getElementById('branchesModal');
   if(!m)return;
   m.classList.remove('show');
   setTimeout(()=>{m.classList.add('hidden');unlockBodyScroll()},280);
 }
+document.addEventListener('click',function(e){
+  const t=e.target.closest && e.target.closest('[data-action="open-branches"],#branchesBtn');
+  if(t&&(t.id==='branchesBtn'||t.getAttribute('data-action')==='open-branches')){
+    e.preventDefault();
+    openBranchesModal();
+  }
+});
 (function bindBranchesUI(){
   const btn=document.getElementById('branchesBtn');
   const closeBtn=document.getElementById('closeBranchesModal');
@@ -1057,11 +1079,7 @@ updateCartUI();loadAll();initCategorySwipe();
 
 
 
-<!-- Floating Branches Button -->
-<button type="button" id="branchesBtn" class="is-visible" aria-label="فروعنا" style="display:none">
-  <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-  فروعنا
-</button>
+
 
 </body>
 </html>
