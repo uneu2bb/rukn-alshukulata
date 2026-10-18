@@ -17,7 +17,11 @@
 <style>
 body{font-family:'Cairo',sans-serif}
 .card-hover{transition:all .3s ease}.card-hover:hover{transform:translateY(-6px);box-shadow:0 20px 40px rgba(67,48,43,.15)}
-.admin-panel{max-height:90vh;overflow-y:auto}
+.admin-panel{max-height:min(92vh,900px);overflow:hidden;display:flex;flex-direction:column}
+.admin-panel-body{flex:1 1 auto;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+body.modal-open{overflow:hidden !important;touch-action:none;position:fixed;width:100%;left:0;right:0}
+#editItemModal .modal-panel{max-height:min(92vh,720px);display:flex;flex-direction:column;overflow:hidden}
+#editItemModal .modal-scroll-body{overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;flex:1 1 auto;min-height:0}
 .fade-in{animation:fadeIn .35s ease}@keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
 input,textarea,select{direction:rtl}
 .cat-btn{transition:all .25s ease;white-space:nowrap}.cat-btn.active{background:#846358;color:#fff;box-shadow:0 4px 12px rgba(132,99,88,.35)}.cat-btn:not(.active):hover{background:#f2e8e5}
@@ -239,7 +243,8 @@ body.has-cart-bar #branchesBtn{bottom:5.5rem}
   </div>
 </div>
 
-<div id="adminModal" class="fixed inset-0 z-[100] hidden bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"><div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl admin-panel fade-in"><div class="sticky top-0 bg-chocolate-800 text-white px-6 py-4 rounded-t-2xl flex justify-between items-center"><h2 class="text-xl font-bold">لوحة التحكم</h2><button id="closeAdmin" class="text-2xl">×</button></div>
+<div id="adminModal" class="fixed inset-0 z-[100] hidden bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"><div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl admin-panel fade-in"><div class="sticky top-0 bg-chocolate-800 text-white px-6 py-4 rounded-t-2xl flex justify-between items-center"><h2 class="text-xl font-bold">لوحة التحكم</h2><button type="button" id="closeAdmin" class="text-2xl">×</button></div>
+<div class="admin-panel-body">
 <div class="p-4 border-b border-chocolate-200 bg-chocolate-50">
 <div class="flex items-center justify-between gap-4 bg-white border border-chocolate-200 rounded-xl px-4 py-3 shadow-sm">
 <div><p class="font-bold text-chocolate-900 text-base">حالة المقهى</p><p id="shopStatusLabel" class="text-sm text-chocolate-600 mt-0.5">مفتوح 🟢</p></div>
@@ -262,7 +267,7 @@ body.has-cart-bar #branchesBtn{bottom:5.5rem}
 </div>
 <!-- توافق خلفي: حقول قديمة مخفية -->
 <input type="hidden" id="editShop1Name"><input type="hidden" id="editShop1Phone"><input type="hidden" id="editShop2Name"><input type="hidden" id="editShop2Phone">
-<textarea id="editFooterDesc" rows="2" class="w-full border rounded-lg px-3 py-2 text-sm" placeholder="وصف أسفل الموقع"></textarea><div class="border rounded-xl p-3 space-y-2 bg-white"><h4 class="font-bold text-sm">تواصل</h4><input type="text" id="editWhatsapp" class="w-full border rounded-lg px-3 py-2 text-sm" placeholder="واتساب: 905xxxxxxxxx" dir="ltr"><input type="text" id="editInstagram" class="w-full border rounded-lg px-3 py-2 text-sm" placeholder="إنستغرام" dir="ltr"><input type="text" id="editFacebook" class="w-full border rounded-lg px-3 py-2 text-sm" placeholder="فيسبوك" dir="ltr"></div></div><div class="border-t pt-3"><label class="block text-sm mb-1">كلمة السر</label><input type="password" id="newAdminPassword" class="w-full border rounded-lg px-3 py-2 mb-2" placeholder="جديدة"><input type="password" id="confirmAdminPassword" class="w-full border rounded-lg px-3 py-2" placeholder="تأكيد"></div><button id="saveSiteSettings" class="bg-chocolate-700 text-white px-5 py-2 rounded-lg font-semibold">حفظ الإعدادات</button></div></div><div class="border rounded-xl p-4"><h3 class="font-bold text-lg mb-4">إدارة الأصناف</h3><p class="text-xs text-chocolate-600 mb-2">💡 اسحب بطاقات الأصناف في المنيو لإعادة ترتيبها</p><div id="sectionsManager" class="space-y-4"></div></div></div></div></div>
+<textarea id="editFooterDesc" rows="2" class="w-full border rounded-lg px-3 py-2 text-sm" placeholder="وصف أسفل الموقع"></textarea><div class="border rounded-xl p-3 space-y-2 bg-white"><h4 class="font-bold text-sm">تواصل</h4><input type="text" id="editWhatsapp" class="w-full border rounded-lg px-3 py-2 text-sm" placeholder="واتساب: 905xxxxxxxxx" dir="ltr"><input type="text" id="editInstagram" class="w-full border rounded-lg px-3 py-2 text-sm" placeholder="إنستغرام" dir="ltr"><input type="text" id="editFacebook" class="w-full border rounded-lg px-3 py-2 text-sm" placeholder="فيسبوك" dir="ltr"></div></div><div class="border-t pt-3"><label class="block text-sm mb-1">كلمة السر</label><input type="password" id="newAdminPassword" class="w-full border rounded-lg px-3 py-2 mb-2" placeholder="جديدة"><input type="password" id="confirmAdminPassword" class="w-full border rounded-lg px-3 py-2" placeholder="تأكيد"></div><button id="saveSiteSettings" class="bg-chocolate-700 text-white px-5 py-2 rounded-lg font-semibold">حفظ الإعدادات</button></div></div><div class="border rounded-xl p-4"><h3 class="font-bold text-lg mb-4">إدارة الأصناف</h3><p class="text-xs text-chocolate-600 mb-2">💡 اسحب بطاقات الأصناف في المنيو لإعادة ترتيبها</p><div id="sectionsManager" class="space-y-4"></div></div></div></div></div></div>
 
 <div id="editItemModal" class="fixed inset-0 z-[110] hidden bg-black/60 flex items-center justify-center p-4"><div class="bg-white rounded-2xl shadow-2xl w-full max-w-md fade-in"><div class="bg-chocolate-800 text-white px-6 py-4 rounded-t-2xl flex justify-between"><h2 class="text-xl font-bold" id="editItemTitle">تعديل</h2><button id="closeEditItem" class="text-2xl">×</button></div><div class="p-6 space-y-4"><input type="text" id="itemName" class="w-full border rounded-lg px-3 py-2" placeholder="اسم"><textarea id="itemDesc" rows="2" class="w-full border rounded-lg px-3 py-2" placeholder="وصف"></textarea><div class="grid grid-cols-2 gap-3"><input type="number" id="itemPriceTRY" class="w-full border rounded-lg px-3 py-2" placeholder="تركي ₺"><input type="number" id="itemPriceSYP" class="w-full border rounded-lg px-3 py-2" placeholder="سوري ل.س"></div><input type="text" id="itemCategory" class="w-full border rounded-lg px-3 py-2" placeholder="قسم"><input type="text" id="itemCategoryIcon" class="w-full border rounded-lg px-3 py-2 hidden" placeholder="أيقونة"><input type="text" id="itemImage" class="w-full border rounded-lg px-3 py-2 mb-2" placeholder="رابط صورة"><label class="cursor-pointer bg-chocolate-100 text-center py-2 rounded-lg text-sm font-semibold block">📷 رفع صورة<input type="file" id="itemImageUpload" accept="image/*" class="hidden"></label><img id="itemImagePreview" class="mt-3 w-full h-40 object-cover rounded-lg hidden border" alt=""><div class="border border-chocolate-200 rounded-xl p-3 space-y-2 bg-chocolate-50"><label class="flex items-center gap-2 text-sm font-medium cursor-pointer"><input type="checkbox" id="itemAvailable" class="w-4 h-4" checked> متوفر للطلب</label><label class="flex items-center gap-2 text-sm font-medium cursor-pointer"><input type="checkbox" id="itemHidden" class="w-4 h-4"> إخفاء من المنيو</label></div><div class="flex gap-3"><button id="saveItem" class="flex-1 bg-chocolate-700 text-white py-2.5 rounded-lg">حفظ</button><button id="deleteItem" class="px-4 bg-red-500 text-white py-2.5 rounded-lg">حذف</button></div></div></div></div>
 
@@ -398,8 +403,54 @@ function renderActiveSection(){
 let logoClickCount=0,logoClickTimer=null;
 function goHomeMenu(e){if(e)e.preventDefault();window.scrollTo({top:0,behavior:'smooth'});if(sections.length){activeCategory=sections[0].title;renderCategoryBar();renderActiveSection()}}
 document.getElementById('logoHomeLink').onclick=function(e){logoClickCount++;clearTimeout(logoClickTimer);logoClickTimer=setTimeout(()=>{logoClickCount=0},2500);if(logoClickCount>=5){logoClickCount=0;e.preventDefault();if(!isAdminUnlocked){openLoginModal();return}openAdminPanel();return}goHomeMenu(e)};
-function openAdminPanel(){document.getElementById('adminModal').classList.remove('hidden');try{renderBranchesAdmin()}catch(e){}const t=document.getElementById('shopOpenToggle');if(t)t.checked=isShopOpen!==false;const lb=document.getElementById('shopStatusLabel');if(lb)lb.textContent=isShopOpen!==false?'مفتوح 🟢':'مغلق 🔴';document.getElementById('editSiteName').value=settings.site_name||'';document.getElementById('editLogo').value=settings.logo||'';document.getElementById('editFavicon').value=settings.favicon||'';document.getElementById('editCover').value=settings.cover||'';document.getElementById('editShop1Name').value=settings.shop1_name||'';document.getElementById('editShop1Phone').value=settings.shop1_phone||'';document.getElementById('editShop2Name').value=settings.shop2_name||'';document.getElementById('editShop2Phone').value=settings.shop2_phone||'';document.getElementById('editFooterDesc').value=settings.footer_desc||'';document.getElementById('editWhatsapp').value=settings.whatsapp||'';document.getElementById('editInstagram').value=settings.instagram||'';document.getElementById('editFacebook').value=settings.facebook||'';const lp=document.getElementById('logoPreview');if(settings.logo){lp.src=toPublicUrl(settings.logo);lp.classList.remove('hidden')}else lp.classList.add('hidden');const fp=document.getElementById('faviconPreview');if(settings.favicon){fp.src=toPublicUrl(settings.favicon);fp.classList.remove('hidden')}else fp.classList.add('hidden');const cpv=document.getElementById('coverPreview');if(settings.cover){cpv.src=toPublicUrl(settings.cover);cpv.classList.remove('hidden')}else cpv.classList.add('hidden');renderSectionsManager()}
-document.getElementById('closeAdmin').onclick=()=>document.getElementById('adminModal').classList.add('hidden');
+
+function lockBodyScroll(){
+  if(document.body.classList.contains('modal-open')) return;
+  const y=window.scrollY||window.pageYOffset||document.documentElement.scrollTop||0;
+  document.body.dataset.scrollY=String(y);
+  document.body.style.top='-'+y+'px';
+  document.body.classList.add('modal-open');
+}
+
+document.addEventListener('touchmove',function(e){
+  if(!document.body.classList.contains('modal-open')) return;
+  // السماح بالتمرير فقط داخل مناطق اللوحات القابلة للتمرير
+  let el=e.target;
+  let allow=false;
+  while(el&&el!==document.body){
+    if(el.classList&&(el.classList.contains('admin-panel-body')||el.classList.contains('modal-scroll-body')||el.classList.contains('branches-sheet')||el.id==='branchesList')){
+      // إذا وصل للحد الأعلى/الأسفل قد يمرر للخلفية — overscroll-behavior يساعد
+      allow=true;break;
+    }
+    el=el.parentElement;
+  }
+  if(!allow) e.preventDefault();
+},{passive:false});
+
+function unlockBodyScroll(){
+  if(!document.body.classList.contains('modal-open')) return;
+  // لا تفك القفل إذا بقيت نافذة أخرى مفتوحة
+  const stillOpen=[
+    document.getElementById('adminModal'),
+    document.getElementById('editItemModal'),
+    document.getElementById('loginModal'),
+    document.getElementById('renameCatModal'),
+    document.getElementById('branchesModal'),
+    document.getElementById('cartModal')
+  ].some(m=>m&&!m.classList.contains('hidden'));
+  if(stillOpen) return;
+  const y=parseInt(document.body.dataset.scrollY||'0',10)||0;
+  document.body.classList.remove('modal-open');
+  document.body.style.top='';
+  document.body.style.overflow='';
+  document.body.style.touchAction='';
+  document.body.style.position='';
+  document.body.style.width='';
+  window.scrollTo(0,y);
+}
+
+function openAdminPanel(){document.getElementById('adminModal').classList.remove('hidden');lockBodyScroll();try{renderBranchesAdmin()}catch(e){}const t=document.getElementById('shopOpenToggle');if(t)t.checked=isShopOpen!==false;const lb=document.getElementById('shopStatusLabel');if(lb)lb.textContent=isShopOpen!==false?'مفتوح 🟢':'مغلق 🔴';document.getElementById('editSiteName').value=settings.site_name||'';document.getElementById('editLogo').value=settings.logo||'';document.getElementById('editFavicon').value=settings.favicon||'';document.getElementById('editCover').value=settings.cover||'';document.getElementById('editShop1Name').value=settings.shop1_name||'';document.getElementById('editShop1Phone').value=settings.shop1_phone||'';document.getElementById('editShop2Name').value=settings.shop2_name||'';document.getElementById('editShop2Phone').value=settings.shop2_phone||'';document.getElementById('editFooterDesc').value=settings.footer_desc||'';document.getElementById('editWhatsapp').value=settings.whatsapp||'';document.getElementById('editInstagram').value=settings.instagram||'';document.getElementById('editFacebook').value=settings.facebook||'';const lp=document.getElementById('logoPreview');if(settings.logo){lp.src=toPublicUrl(settings.logo);lp.classList.remove('hidden')}else lp.classList.add('hidden');const fp=document.getElementById('faviconPreview');if(settings.favicon){fp.src=toPublicUrl(settings.favicon);fp.classList.remove('hidden')}else fp.classList.add('hidden');const cpv=document.getElementById('coverPreview');if(settings.cover){cpv.src=toPublicUrl(settings.cover);cpv.classList.remove('hidden')}else cpv.classList.add('hidden');renderSectionsManager()}
+document.getElementById('closeAdmin').onclick=()=>{document.getElementById('adminModal').classList.add('hidden');unlockBodyScroll()};
 function compressImage(file,options){return new Promise((resolve,reject)=>{if(!file||!file.type.startsWith('image/')){reject(new Error('ليس صورة'));return}const maxWidth=(options&&options.maxWidth)||800;const quality=(options&&options.quality)!=null?options.quality:0.7;const reader=new FileReader();reader.onload=()=>{const img=new Image();img.onload=()=>{let w=img.width,h=img.height;if(w>maxWidth){h=Math.round(h*(maxWidth/w));w=maxWidth}const canvas=document.createElement('canvas');canvas.width=w;canvas.height=h;const ctx=canvas.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,w,h);ctx.drawImage(img,0,0,w,h);function tryBlob(type,q){return new Promise(res=>canvas.toBlob(b=>res(b||null),type,q))}(async()=>{let type='image/webp';let blob=await tryBlob('image/webp',quality);if(!blob){type='image/jpeg';blob=await tryBlob('image/jpeg',quality)}if(!blob){reject(new Error('فشل'));return}let q=quality;while(blob.size>120*1024&&q>0.4){q-=0.1;const again=await tryBlob(type,q);if(again)blob=again;else break}resolve({blob,type,size:blob.size,ext:type==='image/webp'?'webp':'jpg',previewUrl:URL.createObjectURL(blob)})})()};img.src=reader.result};reader.readAsDataURL(file)})}
 async function uploadToStorage(blob,type,folder,ext){const path=(folder||'items')+'/'+Date.now()+'-'+Math.random().toString(36).slice(2,8)+'.'+ext;const {error}=await sbClient.storage.from(STORAGE_BUCKET).upload(path,blob,{contentType:type,upsert:true,cacheControl:'3600'});if(error)throw error;let publicUrl=SUPABASE_URL+'/storage/v1/object/public/'+STORAGE_BUCKET+'/'+path;try{const res=sbClient.storage.from(STORAGE_BUCKET).getPublicUrl(path);const u=res&&res.data&&res.data.publicUrl;if(u&&String(u).indexOf('http')===0)publicUrl=u}catch(e){}return publicUrl}
 async function handleImagePick(file,opts,onDone){if(!file)return;try{showToast('جاري ضغط الصورة...');const c=await compressImage(file,opts);const kb=Math.round(c.size/1024);showToast('جاري الرفع ('+kb+' ك.ب)...');const url=await uploadToStorage(c.blob,c.type,(opts&&opts.folder)||'items',c.ext);onDone(url,kb,c.previewUrl)}catch(err){alert('تعذر رفع الصورة: '+(err.message||err))}}
@@ -546,13 +597,13 @@ function renderSectionsManager(){
   c.appendChild(addNew);
 }
 
-function openEditItem(id,defCat,defIcon){currentEditId=id;const modal=document.getElementById('editItemModal');if(id){const item=items.find(i=>i.id===id);if(!item)return;document.getElementById('editItemTitle').textContent='تعديل: '+item.name;document.getElementById('itemName').value=item.name||'';document.getElementById('itemDesc').value=item.description||'';document.getElementById('itemPriceTRY').value=item.price_try??'';document.getElementById('itemPriceSYP').value=item.price_syp??'';document.getElementById('itemCategory').value=item.category||'';document.getElementById('itemCategoryIcon').value='';document.getElementById('itemImage').value=item.image_url||'';document.getElementById('itemAvailable').checked=item.is_available!==false;document.getElementById('itemHidden').checked=!!item.is_hidden;const prev=document.getElementById('itemImagePreview');if(item.image_url){prev.src=toPublicUrl(item.image_url);prev.classList.remove('hidden')}else prev.classList.add('hidden');document.getElementById('deleteItem').classList.remove('hidden')}else{document.getElementById('editItemTitle').textContent='إضافة صنف';document.getElementById('itemName').value='';document.getElementById('itemDesc').value='';document.getElementById('itemPriceTRY').value='';document.getElementById('itemPriceSYP').value='';document.getElementById('itemCategory').value=defCat||activeCategory||'';document.getElementById('itemCategoryIcon').value='';document.getElementById('itemImage').value='';document.getElementById('itemImagePreview').classList.add('hidden');document.getElementById('itemAvailable').checked=true;document.getElementById('itemHidden').checked=false;document.getElementById('deleteItem').classList.add('hidden')}modal.classList.remove('hidden')}
-document.getElementById('closeEditItem').onclick=()=>document.getElementById('editItemModal').classList.add('hidden');
-document.getElementById('saveItem').onclick=async()=>{const name=stripEmojis(document.getElementById('itemName').value),description=stripEmojis(document.getElementById('itemDesc').value),price_try=parseFloat(document.getElementById('itemPriceTRY').value)||0,price_syp=parseFloat(document.getElementById('itemPriceSYP').value)||0,category=stripEmojis(document.getElementById('itemCategory').value)||'عام',category_icon='',image_url=toPublicUrl(document.getElementById('itemImage').value.trim()),is_available=document.getElementById('itemAvailable').checked,is_hidden=document.getElementById('itemHidden').checked;if(!name){alert('أدخل اسم الصنف');return}const payload={name,description,price_try,price_syp,category,category_icon,image_url,is_available,is_hidden};let error;if(currentEditId)({error}=await sbClient.from('menu_items').update(payload).eq('id',currentEditId));else({error}=await sbClient.from('menu_items').insert([payload]));if(error){alert('خطأ: '+error.message);return}showToast('تم الحفظ ✓');document.getElementById('editItemModal').classList.add('hidden');await loadItems()};
-document.getElementById('deleteItem').onclick=async()=>{if(!currentEditId||!confirm('حذف؟'))return;const {error}=await sbClient.from('menu_items').delete().eq('id',currentEditId);if(error){alert(error.message);return}showToast('تم الحذف');document.getElementById('editItemModal').classList.add('hidden');await loadItems()};
+function openEditItem(id,defCat,defIcon){currentEditId=id;const modal=document.getElementById('editItemModal');if(id){const item=items.find(i=>i.id===id);if(!item)return;document.getElementById('editItemTitle').textContent='تعديل: '+item.name;document.getElementById('itemName').value=item.name||'';document.getElementById('itemDesc').value=item.description||'';document.getElementById('itemPriceTRY').value=item.price_try??'';document.getElementById('itemPriceSYP').value=item.price_syp??'';document.getElementById('itemCategory').value=item.category||'';document.getElementById('itemCategoryIcon').value='';document.getElementById('itemImage').value=item.image_url||'';document.getElementById('itemAvailable').checked=item.is_available!==false;document.getElementById('itemHidden').checked=!!item.is_hidden;const prev=document.getElementById('itemImagePreview');if(item.image_url){prev.src=toPublicUrl(item.image_url);prev.classList.remove('hidden')}else prev.classList.add('hidden');document.getElementById('deleteItem').classList.remove('hidden')}else{document.getElementById('editItemTitle').textContent='إضافة صنف';document.getElementById('itemName').value='';document.getElementById('itemDesc').value='';document.getElementById('itemPriceTRY').value='';document.getElementById('itemPriceSYP').value='';document.getElementById('itemCategory').value=defCat||activeCategory||'';document.getElementById('itemCategoryIcon').value='';document.getElementById('itemImage').value='';document.getElementById('itemImagePreview').classList.add('hidden');document.getElementById('itemAvailable').checked=true;document.getElementById('itemHidden').checked=false;document.getElementById('deleteItem').classList.add('hidden')}modal.classList.remove('hidden');lockBodyScroll()}
+document.getElementById('closeEditItem').onclick=()=>{document.getElementById('editItemModal').classList.add('hidden');unlockBodyScroll()};
+document.getElementById('saveItem').onclick=async()=>{const name=stripEmojis(document.getElementById('itemName').value),description=stripEmojis(document.getElementById('itemDesc').value),price_try=parseFloat(document.getElementById('itemPriceTRY').value)||0,price_syp=parseFloat(document.getElementById('itemPriceSYP').value)||0,category=stripEmojis(document.getElementById('itemCategory').value)||'عام',category_icon='',image_url=toPublicUrl(document.getElementById('itemImage').value.trim()),is_available=document.getElementById('itemAvailable').checked,is_hidden=document.getElementById('itemHidden').checked;if(!name){alert('أدخل اسم الصنف');return}const payload={name,description,price_try,price_syp,category,category_icon,image_url,is_available,is_hidden};let error;if(currentEditId)({error}=await sbClient.from('menu_items').update(payload).eq('id',currentEditId));else({error}=await sbClient.from('menu_items').insert([payload]));if(error){alert('خطأ: '+error.message);return}showToast('تم الحفظ ✓');document.getElementById('editItemModal').classList.add('hidden');unlockBodyScroll();await loadItems()};
+document.getElementById('deleteItem').onclick=async()=>{if(!currentEditId||!confirm('حذف؟'))return;const {error}=await sbClient.from('menu_items').delete().eq('id',currentEditId);if(error){alert(error.message);return}showToast('تم الحذف');document.getElementById('editItemModal').classList.add('hidden');unlockBodyScroll();await loadItems()};
 async function upsertSetting(key,value){const {error}=await sbClient.from('site_settings').upsert({key,value,updated_at:new Date().toISOString()});return error}
 document.getElementById('saveSiteSettings').onclick=async()=>{const pairs={site_name:document.getElementById('editSiteName').value.trim()||'ركن الشوكلاتة',logo:toPublicUrl(document.getElementById('editLogo').value.trim()),favicon:toPublicUrl(document.getElementById('editFavicon').value.trim()),cover:toPublicUrl(document.getElementById('editCover').value.trim()),shop1_name:document.getElementById('editShop1Name').value.trim(),shop1_phone:document.getElementById('editShop1Phone').value.trim(),shop2_name:document.getElementById('editShop2Name').value.trim(),shop2_phone:document.getElementById('editShop2Phone').value.trim(),footer_desc:document.getElementById('editFooterDesc').value.trim(),whatsapp:document.getElementById('editWhatsapp').value.trim(),instagram:document.getElementById('editInstagram').value.trim(),facebook:document.getElementById('editFacebook').value.trim()};const np=document.getElementById('newAdminPassword').value.trim(),cp=document.getElementById('confirmAdminPassword').value.trim();if(np){if(np!==cp){alert('غير متطابقة');return}if(np.length<3){alert('3 أحرف على الأقل');return}pairs.admin_password=np}for(const [k,v] of Object.entries(pairs)){const err=await upsertSetting(k,v);if(err){alert('خطأ '+k+': '+err.message);return}}document.getElementById('newAdminPassword').value='';document.getElementById('confirmAdminPassword').value='';showToast('تم حفظ الإعدادات ✓');await loadSettings()};
-document.getElementById('adminModal').onclick=e=>{if(e.target.id==='adminModal')document.getElementById('adminModal').classList.add('hidden')};
+document.getElementById('adminModal').onclick=e=>{if(e.target.id==='adminModal'){document.getElementById('adminModal').classList.add('hidden');unlockBodyScroll()}};
 document.getElementById('editItemModal').onclick=e=>{if(e.target.id==='editItemModal')document.getElementById('editItemModal').classList.add('hidden')};
 document.getElementById('openCartBtn').onclick=()=>{document.getElementById('cartModal').classList.remove('hidden');renderCartModal()};
 document.getElementById('closeCart').onclick=()=>document.getElementById('cartModal').classList.add('hidden');
@@ -621,6 +672,7 @@ function initCategorySwipe(){
 function openLoginModal(){
   const m=document.getElementById('loginModal');
   if(!m) return;
+  lockBodyScroll();
   const err=document.getElementById('loginError');
   const inp=document.getElementById('loginPassword');
   if(err){err.classList.add('hidden');err.classList.remove('login-error')}
@@ -635,7 +687,7 @@ function closeLoginModal(){
   const m=document.getElementById('loginModal');
   if(!m) return;
   m.classList.remove('show');
-  setTimeout(()=>m.classList.add('hidden'),280);
+  setTimeout(()=>{m.classList.add('hidden');unlockBodyScroll()},280);
 }
 function submitAdminLogin(){
   const inp=document.getElementById('loginPassword');
@@ -823,13 +875,14 @@ function openBranchesModal(){
   });
   const m=document.getElementById('branchesModal');
   m.classList.remove('hidden');
+  lockBodyScroll();
   requestAnimationFrame(()=>requestAnimationFrame(()=>m.classList.add('show')));
 }
 function closeBranchesModal(){
   const m=document.getElementById('branchesModal');
   if(!m)return;
   m.classList.remove('show');
-  setTimeout(()=>m.classList.add('hidden'),280);
+  setTimeout(()=>{m.classList.add('hidden');unlockBodyScroll()},280);
 }
 (function bindBranchesUI(){
   const btn=document.getElementById('branchesBtn');
@@ -857,6 +910,7 @@ function openRenameCatModal(oldName){
   if(err) err.classList.add('hidden');
   if(!m) return;
   m.classList.remove('hidden');
+  lockBodyScroll();
   requestAnimationFrame(()=>requestAnimationFrame(()=>m.classList.add('show')));
   setTimeout(()=>{if(inp){inp.focus();inp.select()}},320);
 }
@@ -864,7 +918,7 @@ function closeRenameCatModal(){
   const m=document.getElementById('renameCatModal');
   if(!m) return;
   m.classList.remove('show');
-  setTimeout(()=>m.classList.add('hidden'),280);
+  setTimeout(()=>{m.classList.add('hidden');unlockBodyScroll()},280);
 }
 async function confirmRenameCategory(){
   const oldName=__renameCatOldName;
