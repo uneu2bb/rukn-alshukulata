@@ -62,6 +62,18 @@ img.fade-img{opacity:0;transition:opacity .45s ease}img.fade-img.is-loaded{opaci
 .login-btn:active{transform:scale(.98)}
 .login-error{animation:loginShake .35s ease}
 @keyframes loginShake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+
+#branchesModal{transition:opacity .25s ease}
+#branchesModal.hidden{pointer-events:none;opacity:0}
+#branchesModal:not(.hidden){opacity:1}
+#branchesModal .branches-sheet{
+  transform:translateY(24px) scale(.98);opacity:0;
+  transition:transform .35s cubic-bezier(.2,.8,.2,1),opacity .3s ease;
+}
+#branchesModal.show .branches-sheet{transform:translateY(0) scale(1);opacity:1}
+#branchesBtn{box-shadow:0 8px 24px rgba(67,48,43,.25)}
+.branch-card{transition:transform .15s,box-shadow .15s}
+.branch-card:active{transform:scale(.98)}
 </style>
 </head>
 <body class="bg-chocolate-50 text-chocolate-900">
@@ -103,6 +115,13 @@ img.fade-img{opacity:0;transition:opacity .45s ease}img.fade-img.is-loaded{opaci
 <div class="container mx-auto px-4 text-center">
 <h3 id="footerName" class="text-xl font-bold mb-3">ركن الشوكلاتة</h3>
 <p id="footerDesc" class="text-chocolate-300 text-sm mb-5 max-w-xl mx-auto leading-relaxed hidden"></p>
+
+<div class="flex justify-center mb-5">
+  <button type="button" id="branchesBtn" class="hidden inline-flex items-center gap-2 bg-chocolate-700 hover:bg-chocolate-800 text-white font-bold px-6 py-3 rounded-full text-sm">
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+    فروعنا
+  </button>
+</div>
 <div id="footerShops" class="flex flex-col sm:flex-row justify-center gap-6 mb-5">
 <div id="shop1Box" class="hidden"><p id="shop1NameEl" class="font-semibold text-white mb-1"></p><a id="shop1PhoneEl" href="#" class="text-chocolate-200 hover:text-white text-sm" dir="ltr"></a></div>
 <div id="shop2Box" class="hidden"><p id="shop2NameEl" class="font-semibold text-white mb-1"></p><a id="shop2PhoneEl" href="#" class="text-chocolate-200 hover:text-white text-sm" dir="ltr"></a></div>
@@ -138,13 +157,44 @@ img.fade-img{opacity:0;transition:opacity .45s ease}img.fade-img.is-loaded{opaci
   </div>
 </div>
 
+
+<!-- Branches Modal -->
+<div id="branchesModal" class="fixed inset-0 z-[105] hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
+  <div class="absolute inset-0 bg-chocolate-950/55 backdrop-blur-md" id="branchesBackdrop"></div>
+  <div class="branches-sheet relative bg-white w-full sm:max-w-md sm:rounded-3xl rounded-t-3xl shadow-2xl overflow-hidden max-h-[85vh] flex flex-col">
+    <div class="px-5 pt-5 pb-3 flex items-center justify-between border-b border-chocolate-100 shrink-0">
+      <h2 class="text-lg font-bold text-chocolate-900">فروعنا</h2>
+      <button type="button" id="closeBranchesModal" class="w-9 h-9 rounded-full bg-chocolate-50 text-chocolate-700 text-xl flex items-center justify-center" aria-label="إغلاق">×</button>
+    </div>
+    <div id="branchesList" class="px-4 py-4 overflow-y-auto space-y-3"></div>
+    <p class="text-center text-xs text-chocolate-400 pb-4 px-4">اختر الفرع لفتح الموقع على الخريطة</p>
+  </div>
+</div>
+
 <div id="adminModal" class="fixed inset-0 z-[100] hidden bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"><div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl admin-panel fade-in"><div class="sticky top-0 bg-chocolate-800 text-white px-6 py-4 rounded-t-2xl flex justify-between items-center"><h2 class="text-xl font-bold">لوحة التحكم</h2><button id="closeAdmin" class="text-2xl">×</button></div>
 <div class="p-4 border-b border-chocolate-200 bg-chocolate-50">
 <div class="flex items-center justify-between gap-4 bg-white border border-chocolate-200 rounded-xl px-4 py-3 shadow-sm">
 <div><p class="font-bold text-chocolate-900 text-base">حالة المقهى</p><p id="shopStatusLabel" class="text-sm text-chocolate-600 mt-0.5">مفتوح 🟢</p></div>
 <label class="toggle-switch" title="تبديل مفتوح/مغلق"><input type="checkbox" id="shopOpenToggle" checked><span class="toggle-slider"></span></label>
 </div></div>
-<div class="p-6 space-y-6"><div class="border border-chocolate-200 rounded-xl p-4"><h3 class="font-bold text-lg mb-4">إعدادات الموقع</h3><div class="space-y-3"><div><label class="block text-sm font-medium mb-1">اسم الموقع</label><input type="text" id="editSiteName" class="w-full border rounded-lg px-3 py-2"></div><div><label class="block text-sm font-medium mb-1">الشعار</label><input type="text" id="editLogo" class="w-full border rounded-lg px-3 py-2 mb-2"><label class="cursor-pointer bg-chocolate-100 text-center py-2 rounded-lg text-sm font-semibold block">📷 رفع شعار<input type="file" id="logoUpload" accept="image/*" class="hidden"></label><img id="logoPreview" class="mt-2 w-16 h-16 rounded-full object-cover border hidden" alt=""></div><div><label class="block text-sm font-medium mb-1">الغلاف</label><input type="text" id="editCover" class="w-full border rounded-lg px-3 py-2 mb-2"><label class="cursor-pointer bg-chocolate-100 text-center py-2 rounded-lg text-sm font-semibold block">📷 رفع غلاف<input type="file" id="coverUpload" accept="image/*" class="hidden"></label><img id="coverPreview" class="mt-2 w-full h-24 object-cover rounded-lg border hidden" alt=""></div><div><label class="block text-sm font-medium mb-1">Favicon</label><input type="text" id="editFavicon" class="w-full border rounded-lg px-3 py-2 mb-2"><label class="cursor-pointer bg-chocolate-100 text-center py-2 rounded-lg text-sm font-semibold block">📷 رفع<input type="file" id="faviconUpload" accept="image/*" class="hidden"></label><img id="faviconPreview" class="mt-2 w-8 h-8 rounded border hidden" alt=""></div><div class="border rounded-xl p-3 space-y-3"><h4 class="font-bold text-sm">الفروع</h4><div class="grid grid-cols-2 gap-3"><input type="text" id="editShop1Name" class="border rounded-lg px-3 py-2 text-sm" placeholder="محل 1"><input type="text" id="editShop1Phone" class="border rounded-lg px-3 py-2 text-sm" placeholder="هاتف 1" dir="ltr"><input type="text" id="editShop2Name" class="border rounded-lg px-3 py-2 text-sm" placeholder="محل 2"><input type="text" id="editShop2Phone" class="border rounded-lg px-3 py-2 text-sm" placeholder="هاتف 2" dir="ltr"></div><textarea id="editFooterDesc" rows="2" class="w-full border rounded-lg px-3 py-2 text-sm" placeholder="وصف"></textarea><div class="border rounded-xl p-3 space-y-2 bg-white"><h4 class="font-bold text-sm">تواصل</h4><input type="text" id="editWhatsapp" class="w-full border rounded-lg px-3 py-2 text-sm" placeholder="واتساب: 905xxxxxxxxx" dir="ltr"><input type="text" id="editInstagram" class="w-full border rounded-lg px-3 py-2 text-sm" placeholder="إنستغرام" dir="ltr"><input type="text" id="editFacebook" class="w-full border rounded-lg px-3 py-2 text-sm" placeholder="فيسبوك" dir="ltr"></div></div><div class="border-t pt-3"><label class="block text-sm mb-1">كلمة السر</label><input type="password" id="newAdminPassword" class="w-full border rounded-lg px-3 py-2 mb-2" placeholder="جديدة"><input type="password" id="confirmAdminPassword" class="w-full border rounded-lg px-3 py-2" placeholder="تأكيد"></div><button id="saveSiteSettings" class="bg-chocolate-700 text-white px-5 py-2 rounded-lg font-semibold">حفظ الإعدادات</button></div></div><div class="border rounded-xl p-4"><h3 class="font-bold text-lg mb-4">إدارة الأصناف</h3><p class="text-xs text-chocolate-600 mb-2">💡 اسحب بطاقات الأصناف في المنيو لإعادة ترتيبها</p><div id="sectionsManager" class="space-y-4"></div></div></div></div></div>
+<div class="p-6 space-y-6"><div class="border border-chocolate-200 rounded-xl p-4"><h3 class="font-bold text-lg mb-4">إعدادات الموقع</h3><div class="space-y-3"><div><label class="block text-sm font-medium mb-1">اسم الموقع</label><input type="text" id="editSiteName" class="w-full border rounded-lg px-3 py-2"></div><div><label class="block text-sm font-medium mb-1">الشعار</label><input type="text" id="editLogo" class="w-full border rounded-lg px-3 py-2 mb-2"><label class="cursor-pointer bg-chocolate-100 text-center py-2 rounded-lg text-sm font-semibold block">📷 رفع شعار<input type="file" id="logoUpload" accept="image/*" class="hidden"></label><img id="logoPreview" class="mt-2 w-16 h-16 rounded-full object-cover border hidden" alt=""></div><div><label class="block text-sm font-medium mb-1">الغلاف</label><input type="text" id="editCover" class="w-full border rounded-lg px-3 py-2 mb-2"><label class="cursor-pointer bg-chocolate-100 text-center py-2 rounded-lg text-sm font-semibold block">📷 رفع غلاف<input type="file" id="coverUpload" accept="image/*" class="hidden"></label><img id="coverPreview" class="mt-2 w-full h-24 object-cover rounded-lg border hidden" alt=""></div><div><label class="block text-sm font-medium mb-1">Favicon</label><input type="text" id="editFavicon" class="w-full border rounded-lg px-3 py-2 mb-2"><label class="cursor-pointer bg-chocolate-100 text-center py-2 rounded-lg text-sm font-semibold block">📷 رفع<input type="file" id="faviconUpload" accept="image/*" class="hidden"></label><img id="faviconPreview" class="mt-2 w-8 h-8 rounded border hidden" alt=""></div><div class="border rounded-xl p-3 space-y-3"><h4 class="font-bold text-sm">الفروع والمواقع</h4>
+<p class="text-xs text-chocolate-500">أضف فروعك مع رابط الخريطة. الزبائن يضغطون «فروعنا» ويختارون الفرع فيُفتح الموقع على الخرائط.</p>
+<div id="branchesAdminList" class="space-y-2"></div>
+<div class="border border-dashed border-chocolate-300 rounded-xl p-3 space-y-2 bg-chocolate-50/40">
+  <p class="text-xs font-semibold text-chocolate-700">إضافة / تعديل فرع</p>
+  <input type="hidden" id="branchEditIndex" value="-1">
+  <input type="text" id="branchName" class="w-full border rounded-lg px-3 py-2 text-sm" placeholder="اسم الفرع (مثال: فرع إدلب)">
+  <input type="text" id="branchAddress" class="w-full border rounded-lg px-3 py-2 text-sm" placeholder="العنوان التفصيلي">
+  <input type="text" id="branchPhone" class="w-full border rounded-lg px-3 py-2 text-sm" placeholder="هاتف الفرع" dir="ltr">
+  <input type="url" id="branchMapUrl" class="w-full border rounded-lg px-3 py-2 text-sm" placeholder="رابط الخريطة (Google Maps أو Apple)" dir="ltr">
+  <div class="flex gap-2">
+    <button type="button" id="branchSaveBtn" class="flex-1 bg-chocolate-700 text-white rounded-lg py-2 text-sm font-semibold">حفظ الفرع</button>
+    <button type="button" id="branchClearBtn" class="px-3 border rounded-lg text-sm text-chocolate-600">مسح</button>
+  </div>
+</div>
+<!-- توافق خلفي: حقول قديمة مخفية -->
+<input type="hidden" id="editShop1Name"><input type="hidden" id="editShop1Phone"><input type="hidden" id="editShop2Name"><input type="hidden" id="editShop2Phone">
+<textarea id="editFooterDesc" rows="2" class="w-full border rounded-lg px-3 py-2 text-sm" placeholder="وصف أسفل الموقع"></textarea><div class="border rounded-xl p-3 space-y-2 bg-white"><h4 class="font-bold text-sm">تواصل</h4><input type="text" id="editWhatsapp" class="w-full border rounded-lg px-3 py-2 text-sm" placeholder="واتساب: 905xxxxxxxxx" dir="ltr"><input type="text" id="editInstagram" class="w-full border rounded-lg px-3 py-2 text-sm" placeholder="إنستغرام" dir="ltr"><input type="text" id="editFacebook" class="w-full border rounded-lg px-3 py-2 text-sm" placeholder="فيسبوك" dir="ltr"></div></div><div class="border-t pt-3"><label class="block text-sm mb-1">كلمة السر</label><input type="password" id="newAdminPassword" class="w-full border rounded-lg px-3 py-2 mb-2" placeholder="جديدة"><input type="password" id="confirmAdminPassword" class="w-full border rounded-lg px-3 py-2" placeholder="تأكيد"></div><button id="saveSiteSettings" class="bg-chocolate-700 text-white px-5 py-2 rounded-lg font-semibold">حفظ الإعدادات</button></div></div><div class="border rounded-xl p-4"><h3 class="font-bold text-lg mb-4">إدارة الأصناف</h3><p class="text-xs text-chocolate-600 mb-2">💡 اسحب بطاقات الأصناف في المنيو لإعادة ترتيبها</p><div id="sectionsManager" class="space-y-4"></div></div></div></div></div>
 
 <div id="editItemModal" class="fixed inset-0 z-[110] hidden bg-black/60 flex items-center justify-center p-4"><div class="bg-white rounded-2xl shadow-2xl w-full max-w-md fade-in"><div class="bg-chocolate-800 text-white px-6 py-4 rounded-t-2xl flex justify-between"><h2 class="text-xl font-bold" id="editItemTitle">تعديل</h2><button id="closeEditItem" class="text-2xl">×</button></div><div class="p-6 space-y-4"><input type="text" id="itemName" class="w-full border rounded-lg px-3 py-2" placeholder="اسم"><textarea id="itemDesc" rows="2" class="w-full border rounded-lg px-3 py-2" placeholder="وصف"></textarea><div class="grid grid-cols-2 gap-3"><input type="number" id="itemPriceTRY" class="w-full border rounded-lg px-3 py-2" placeholder="تركي ₺"><input type="number" id="itemPriceSYP" class="w-full border rounded-lg px-3 py-2" placeholder="سوري ل.س"></div><input type="text" id="itemCategory" class="w-full border rounded-lg px-3 py-2" placeholder="قسم"><input type="text" id="itemCategoryIcon" class="w-full border rounded-lg px-3 py-2 hidden" placeholder="أيقونة"><input type="text" id="itemImage" class="w-full border rounded-lg px-3 py-2 mb-2" placeholder="رابط صورة"><label class="cursor-pointer bg-chocolate-100 text-center py-2 rounded-lg text-sm font-semibold block">📷 رفع صورة<input type="file" id="itemImageUpload" accept="image/*" class="hidden"></label><img id="itemImagePreview" class="mt-3 w-full h-40 object-cover rounded-lg hidden border" alt=""><div class="border border-chocolate-200 rounded-xl p-3 space-y-2 bg-chocolate-50"><label class="flex items-center gap-2 text-sm font-medium cursor-pointer"><input type="checkbox" id="itemAvailable" class="w-4 h-4" checked> متوفر للطلب</label><label class="flex items-center gap-2 text-sm font-medium cursor-pointer"><input type="checkbox" id="itemHidden" class="w-4 h-4"> إخفاء من المنيو</label></div><div class="flex gap-3"><button id="saveItem" class="flex-1 bg-chocolate-700 text-white py-2.5 rounded-lg">حفظ</button><button id="deleteItem" class="px-4 bg-red-500 text-white py-2.5 rounded-lg">حذف</button></div></div></div></div>
 
@@ -226,7 +276,7 @@ function applyShopStatus(){
   if(waBtn){if(open)waBtn.classList.remove('hidden');else waBtn.classList.add('hidden')}
   if(closedMsg){if(open)closedMsg.classList.add('hidden');else closedMsg.classList.remove('hidden')}
 }
-function applySettings(){isShopOpen=!(settings.is_open==='false'||settings.is_open===false||settings.is_open==='0');const name=settings.site_name||'ركن الشوكلاتة';document.getElementById('siteName').textContent=name;document.getElementById('footerName').textContent=name;document.title=name;const logoEl=document.getElementById('siteLogo');function revealImg(el,url,fallback){if(!el)return;const src=url?cacheBust(url):(fallback||'');if(!src){el.style.opacity='0';return}el.onload=function(){el.style.opacity='1'};el.onerror=function(){if(fallback&&el.src.indexOf(fallback)<0)el.src=fallback;else el.style.opacity='0'};el.style.opacity='0';el.src=src;if(el.complete&&el.naturalWidth)el.style.opacity='1'}revealImg(logoEl,settings.logo,'https://images.unsplash.com/photo-1606312619070-d48b4c652a52?w=160&h=160&fit=crop');const fav=settings.favicon||settings.logo||'';const fl=document.getElementById('siteFavicon');if(fl&&fav)fl.href=cacheBust(fav);const hero=document.getElementById('heroCover');if(hero)revealImg(hero,settings.cover||'https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=1600&h=900&fit=crop','');const fd=document.getElementById('footerDesc');if(settings.footer_desc){fd.textContent=settings.footer_desc;fd.classList.remove('hidden')}else{fd.textContent='';fd.classList.add('hidden')}const s1b=document.getElementById('shop1Box');if(settings.shop1_name||settings.shop1_phone){s1b.classList.remove('hidden');document.getElementById('shop1NameEl').textContent=settings.shop1_name||'';const ph=(settings.shop1_phone||'').trim();const a=document.getElementById('shop1PhoneEl');a.textContent=ph;a.href=ph?('tel:'+ph.replace(/\s/g,'')):'#'}else s1b.classList.add('hidden');const s2b=document.getElementById('shop2Box');if(settings.shop2_name||settings.shop2_phone){s2b.classList.remove('hidden');document.getElementById('shop2NameEl').textContent=settings.shop2_name||'';const ph=(settings.shop2_phone||'').trim();const a=document.getElementById('shop2PhoneEl');a.textContent=ph;a.href=ph?('tel:'+ph.replace(/\s/g,'')):'#'}else s2b.classList.add('hidden');function normWa(v){v=(v||'').trim();if(!v)return'';if(/^https?:\/\//i.test(v)||v.includes('wa.me'))return v.startsWith('http')?v:('https://'+v);const d=v.replace(/[^0-9]/g,'');return d?('https://wa.me/'+d):''}function normIg(v){v=(v||'').trim();if(!v)return'';if(/^https?:\/\//i.test(v))return v;return'https://instagram.com/'+v.replace(/^@/,'')}function normFb(v){v=(v||'').trim();if(!v)return'';if(/^https?:\/\//i.test(v))return v;return'https://facebook.com/'+v.replace(/^@/,'')}const wa=document.getElementById('socialWhatsapp'),ig=document.getElementById('socialInstagram'),fb=document.getElementById('socialFacebook');const waU=normWa(settings.whatsapp),igU=normIg(settings.instagram),fbU=normFb(settings.facebook);if(waU){wa.href=waU;wa.classList.remove('hidden')}else wa.classList.add('hidden');if(igU){ig.href=igU;ig.classList.remove('hidden')}else ig.classList.add('hidden');if(fbU){fb.href=fbU;fb.classList.remove('hidden')}else fb.classList.add('hidden');applyShopStatus()}
+function applySettings(){isShopOpen=!(settings.is_open==='false'||settings.is_open===false||settings.is_open==='0');const name=settings.site_name||'ركن الشوكلاتة';document.getElementById('siteName').textContent=name;document.getElementById('footerName').textContent=name;document.title=name;const logoEl=document.getElementById('siteLogo');function revealImg(el,url,fallback){if(!el)return;const src=url?cacheBust(url):(fallback||'');if(!src){el.style.opacity='0';return}el.onload=function(){el.style.opacity='1'};el.onerror=function(){if(fallback&&el.src.indexOf(fallback)<0)el.src=fallback;else el.style.opacity='0'};el.style.opacity='0';el.src=src;if(el.complete&&el.naturalWidth)el.style.opacity='1'}revealImg(logoEl,settings.logo,'https://images.unsplash.com/photo-1606312619070-d48b4c652a52?w=160&h=160&fit=crop');const fav=settings.favicon||settings.logo||'';const fl=document.getElementById('siteFavicon');if(fl&&fav)fl.href=cacheBust(fav);const hero=document.getElementById('heroCover');if(hero)revealImg(hero,settings.cover||'https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=1600&h=900&fit=crop','');const fd=document.getElementById('footerDesc');if(settings.footer_desc){fd.textContent=settings.footer_desc;fd.classList.remove('hidden')}else{fd.textContent='';fd.classList.add('hidden')}const s1b=document.getElementById('shop1Box');if(settings.shop1_name||settings.shop1_phone){s1b.classList.remove('hidden');document.getElementById('shop1NameEl').textContent=settings.shop1_name||'';const ph=(settings.shop1_phone||'').trim();const a=document.getElementById('shop1PhoneEl');a.textContent=ph;a.href=ph?('tel:'+ph.replace(/\s/g,'')):'#'}else s1b.classList.add('hidden');const s2b=document.getElementById('shop2Box');if(settings.shop2_name||settings.shop2_phone){s2b.classList.remove('hidden');document.getElementById('shop2NameEl').textContent=settings.shop2_name||'';const ph=(settings.shop2_phone||'').trim();const a=document.getElementById('shop2PhoneEl');a.textContent=ph;a.href=ph?('tel:'+ph.replace(/\s/g,'')):'#'}else s2b.classList.add('hidden');function normWa(v){v=(v||'').trim();if(!v)return'';if(/^https?:\/\//i.test(v)||v.includes('wa.me'))return v.startsWith('http')?v:('https://'+v);const d=v.replace(/[^0-9]/g,'');return d?('https://wa.me/'+d):''}function normIg(v){v=(v||'').trim();if(!v)return'';if(/^https?:\/\//i.test(v))return v;return'https://instagram.com/'+v.replace(/^@/,'')}function normFb(v){v=(v||'').trim();if(!v)return'';if(/^https?:\/\//i.test(v))return v;return'https://facebook.com/'+v.replace(/^@/,'')}const wa=document.getElementById('socialWhatsapp'),ig=document.getElementById('socialInstagram'),fb=document.getElementById('socialFacebook');const waU=normWa(settings.whatsapp),igU=normIg(settings.instagram),fbU=normFb(settings.facebook);if(waU){wa.href=waU;wa.classList.remove('hidden')}else wa.classList.add('hidden');if(igU){ig.href=igU;ig.classList.remove('hidden')}else ig.classList.add('hidden');if(fbU){fb.href=fbU;fb.classList.remove('hidden')}else fb.classList.add('hidden');applyShopStatus();try{applyBranchesUI()}catch(e){}}
 function renderCategoryBar(){const bar=document.getElementById('categoryBar');if(!bar)return;bar.innerHTML='';sections.forEach(sec=>{const btn=document.createElement('button');const active=sec.title===activeCategory;btn.className='cat-btn px-4 py-2 rounded-full text-sm font-semibold border border-chocolate-200 '+(active?'active':'bg-white text-chocolate-800');btn.textContent=sec.title;btn.setAttribute('data-cat',sec.title);btn.onclick=()=>{if(activeCategory===sec.title)return;window.__swipeDir=0;activeCategory=sec.title;renderCategoryBar();renderActiveSection()};bar.appendChild(btn);if(active){try{btn.scrollIntoView({behavior:'smooth',inline:'center',block:'nearest'})}catch(e){}}})}
 async function persistSortOrder(orderedIds){for(let i=0;i<orderedIds.length;i++){const id=orderedIds[i];await sbClient.from('menu_items').update({sort_order:i+1}).eq('id',id);const it=items.find(x=>String(x.id)===String(id));if(it)it.sort_order=i+1}showToast('تم حفظ الترتيب ✓');rebuildSections()}
 function enableCardDrag(card,item){if(!isAdminUnlocked)return;card.setAttribute('draggable','true');card.classList.add('drag-handle');
@@ -280,7 +330,7 @@ function renderActiveSection(){
 let logoClickCount=0,logoClickTimer=null;
 function goHomeMenu(e){if(e)e.preventDefault();window.scrollTo({top:0,behavior:'smooth'});if(sections.length){activeCategory=sections[0].title;renderCategoryBar();renderActiveSection()}}
 document.getElementById('logoHomeLink').onclick=function(e){logoClickCount++;clearTimeout(logoClickTimer);logoClickTimer=setTimeout(()=>{logoClickCount=0},2500);if(logoClickCount>=5){logoClickCount=0;e.preventDefault();if(!isAdminUnlocked){openLoginModal();return}openAdminPanel();return}goHomeMenu(e)};
-function openAdminPanel(){document.getElementById('adminModal').classList.remove('hidden');const t=document.getElementById('shopOpenToggle');if(t)t.checked=isShopOpen!==false;const lb=document.getElementById('shopStatusLabel');if(lb)lb.textContent=isShopOpen!==false?'مفتوح 🟢':'مغلق 🔴';document.getElementById('editSiteName').value=settings.site_name||'';document.getElementById('editLogo').value=settings.logo||'';document.getElementById('editFavicon').value=settings.favicon||'';document.getElementById('editCover').value=settings.cover||'';document.getElementById('editShop1Name').value=settings.shop1_name||'';document.getElementById('editShop1Phone').value=settings.shop1_phone||'';document.getElementById('editShop2Name').value=settings.shop2_name||'';document.getElementById('editShop2Phone').value=settings.shop2_phone||'';document.getElementById('editFooterDesc').value=settings.footer_desc||'';document.getElementById('editWhatsapp').value=settings.whatsapp||'';document.getElementById('editInstagram').value=settings.instagram||'';document.getElementById('editFacebook').value=settings.facebook||'';const lp=document.getElementById('logoPreview');if(settings.logo){lp.src=toPublicUrl(settings.logo);lp.classList.remove('hidden')}else lp.classList.add('hidden');const fp=document.getElementById('faviconPreview');if(settings.favicon){fp.src=toPublicUrl(settings.favicon);fp.classList.remove('hidden')}else fp.classList.add('hidden');const cpv=document.getElementById('coverPreview');if(settings.cover){cpv.src=toPublicUrl(settings.cover);cpv.classList.remove('hidden')}else cpv.classList.add('hidden');renderSectionsManager()}
+function openAdminPanel(){document.getElementById('adminModal').classList.remove('hidden');try{renderBranchesAdmin()}catch(e){}const t=document.getElementById('shopOpenToggle');if(t)t.checked=isShopOpen!==false;const lb=document.getElementById('shopStatusLabel');if(lb)lb.textContent=isShopOpen!==false?'مفتوح 🟢':'مغلق 🔴';document.getElementById('editSiteName').value=settings.site_name||'';document.getElementById('editLogo').value=settings.logo||'';document.getElementById('editFavicon').value=settings.favicon||'';document.getElementById('editCover').value=settings.cover||'';document.getElementById('editShop1Name').value=settings.shop1_name||'';document.getElementById('editShop1Phone').value=settings.shop1_phone||'';document.getElementById('editShop2Name').value=settings.shop2_name||'';document.getElementById('editShop2Phone').value=settings.shop2_phone||'';document.getElementById('editFooterDesc').value=settings.footer_desc||'';document.getElementById('editWhatsapp').value=settings.whatsapp||'';document.getElementById('editInstagram').value=settings.instagram||'';document.getElementById('editFacebook').value=settings.facebook||'';const lp=document.getElementById('logoPreview');if(settings.logo){lp.src=toPublicUrl(settings.logo);lp.classList.remove('hidden')}else lp.classList.add('hidden');const fp=document.getElementById('faviconPreview');if(settings.favicon){fp.src=toPublicUrl(settings.favicon);fp.classList.remove('hidden')}else fp.classList.add('hidden');const cpv=document.getElementById('coverPreview');if(settings.cover){cpv.src=toPublicUrl(settings.cover);cpv.classList.remove('hidden')}else cpv.classList.add('hidden');renderSectionsManager()}
 document.getElementById('closeAdmin').onclick=()=>document.getElementById('adminModal').classList.add('hidden');
 function compressImage(file,options){return new Promise((resolve,reject)=>{if(!file||!file.type.startsWith('image/')){reject(new Error('ليس صورة'));return}const maxWidth=(options&&options.maxWidth)||800;const quality=(options&&options.quality)!=null?options.quality:0.7;const reader=new FileReader();reader.onload=()=>{const img=new Image();img.onload=()=>{let w=img.width,h=img.height;if(w>maxWidth){h=Math.round(h*(maxWidth/w));w=maxWidth}const canvas=document.createElement('canvas');canvas.width=w;canvas.height=h;const ctx=canvas.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,w,h);ctx.drawImage(img,0,0,w,h);function tryBlob(type,q){return new Promise(res=>canvas.toBlob(b=>res(b||null),type,q))}(async()=>{let type='image/webp';let blob=await tryBlob('image/webp',quality);if(!blob){type='image/jpeg';blob=await tryBlob('image/jpeg',quality)}if(!blob){reject(new Error('فشل'));return}let q=quality;while(blob.size>120*1024&&q>0.4){q-=0.1;const again=await tryBlob(type,q);if(again)blob=again;else break}resolve({blob,type,size:blob.size,ext:type==='image/webp'?'webp':'jpg',previewUrl:URL.createObjectURL(blob)})})()};img.src=reader.result};reader.readAsDataURL(file)})}
 async function uploadToStorage(blob,type,folder,ext){const path=(folder||'items')+'/'+Date.now()+'-'+Math.random().toString(36).slice(2,8)+'.'+ext;const {error}=await sbClient.storage.from(STORAGE_BUCKET).upload(path,blob,{contentType:type,upsert:true,cacheControl:'3600'});if(error)throw error;let publicUrl=SUPABASE_URL+'/storage/v1/object/public/'+STORAGE_BUCKET+'/'+path;try{const res=sbClient.storage.from(STORAGE_BUCKET).getPublicUrl(path);const u=res&&res.data&&res.data.publicUrl;if(u&&String(u).indexOf('http')===0)publicUrl=u}catch(e){}return publicUrl}
@@ -568,6 +618,180 @@ function submitAdminLogin(){
   if(inp) inp.addEventListener('keydown',function(e){
     if(e.key==='Enter'){e.preventDefault();submitAdminLogin()}
   });
+})();
+
+
+function getBranches(){
+  let list=[];
+  try{list=JSON.parse(settings.branches||'[]')||[]}catch(e){list=[]}
+  if(!Array.isArray(list)) list=[];
+  // migrate old shop1/shop2 once
+  if(!list.length){
+    if(settings.shop1_name||settings.shop1_phone){
+      list.push({name:settings.shop1_name||'الفرع 1',phone:settings.shop1_phone||'',address:'',map_url:settings.shop1_map||''});
+    }
+    if(settings.shop2_name||settings.shop2_phone){
+      list.push({name:settings.shop2_name||'الفرع 2',phone:settings.shop2_phone||'',address:'',map_url:settings.shop2_map||''});
+    }
+  }
+  return list.map(b=>({
+    name:(b.name||'').trim(),
+    phone:(b.phone||'').trim(),
+    address:(b.address||'').trim(),
+    map_url:(b.map_url||b.map||'').trim()
+  })).filter(b=>b.name||b.phone||b.address||b.map_url);
+}
+async function persistBranches(list){
+  const clean=list.filter(b=>b.name||b.phone||b.address||b.map_url);
+  const err=await upsertSetting('branches', JSON.stringify(clean));
+  if(err){alert('تعذر حفظ الفروع: '+err.message);return false}
+  settings.branches=JSON.stringify(clean);
+  // sync legacy fields for old UI pieces
+  if(clean[0]){settings.shop1_name=clean[0].name;settings.shop1_phone=clean[0].phone;await upsertSetting('shop1_name',clean[0].name);await upsertSetting('shop1_phone',clean[0].phone)}
+  if(clean[1]){settings.shop2_name=clean[1].name;settings.shop2_phone=clean[1].phone;await upsertSetting('shop2_name',clean[1].name);await upsertSetting('shop2_phone',clean[1].phone)}
+  applyBranchesUI();
+  showToast('تم حفظ الفروع ✓');
+  return true;
+}
+function branchMapsLink(b){
+  if(b.map_url) return b.map_url;
+  const q=encodeURIComponent([b.name,b.address].filter(Boolean).join(' '));
+  return q?('https://www.google.com/maps/search/?api=1&query='+q):'#';
+}
+function applyBranchesUI(){
+  const list=getBranches();
+  const btn=document.getElementById('branchesBtn');
+  if(btn){if(list.length)btn.classList.remove('hidden');else btn.classList.add('hidden')}
+  // footer legacy boxes
+  const s1b=document.getElementById('shop1Box');
+  const s2b=document.getElementById('shop2Box');
+  if(s1b){
+    if(list[0]){
+      s1b.classList.remove('hidden');
+      const n=document.getElementById('shop1NameEl');if(n)n.textContent=list[0].name||'';
+      const a=document.getElementById('shop1PhoneEl');
+      if(a){
+        const ph=(list[0].phone||'').trim();
+        if(ph){a.textContent=ph;a.href='tel:'+ph.replace(/\s/g,'');a.classList.remove('hidden')}
+        else{a.textContent='';a.removeAttribute('href')}
+      }
+    } else s1b.classList.add('hidden');
+  }
+  if(s2b){
+    if(list[1]){
+      s2b.classList.remove('hidden');
+      const n=document.getElementById('shop2NameEl');if(n)n.textContent=list[1].name||'';
+      const a=document.getElementById('shop2PhoneEl');
+      if(a){
+        const ph=(list[1].phone||'').trim();
+        if(ph){a.textContent=ph;a.href='tel:'+ph.replace(/\s/g,'');a.classList.remove('hidden')}
+        else{a.textContent='';a.removeAttribute('href')}
+      }
+    } else s2b.classList.add('hidden');
+  }
+  renderBranchesAdmin();
+}
+function renderBranchesAdmin(){
+  const box=document.getElementById('branchesAdminList');
+  if(!box) return;
+  const list=getBranches();
+  box.innerHTML='';
+  if(!list.length){
+    box.innerHTML='<p class="text-xs text-chocolate-400">لا توجد فروع بعد — أضف فرعاً من النموذج بالأسفل.</p>';
+    return;
+  }
+  list.forEach((b,idx)=>{
+    const row=document.createElement('div');
+    row.className='flex items-start gap-2 bg-white border border-chocolate-100 rounded-xl p-3';
+    row.innerHTML='<div class="flex-1 min-w-0"><p class="font-semibold text-sm text-chocolate-900 truncate">'+(b.name||'فرع')+'</p>'
+      +(b.address?'<p class="text-xs text-chocolate-500 truncate">'+b.address+'</p>':'')
+      +(b.phone?'<p class="text-xs text-chocolate-600 dir-ltr" dir="ltr">'+b.phone+'</p>':'')
+      +(b.map_url?'<p class="text-[10px] text-green-700 mt-0.5">خريطة مربوطة ✓</p>':'<p class="text-[10px] text-amber-600 mt-0.5">بدون رابط خريطة</p>')
+      +'</div><div class="flex flex-col gap-1 shrink-0">'
+      +'<button type="button" class="text-xs bg-chocolate-100 px-2 py-1 rounded-lg branch-edit" data-i="'+idx+'">تعديل</button>'
+      +'<button type="button" class="text-xs bg-red-50 text-red-700 px-2 py-1 rounded-lg branch-del" data-i="'+idx+'">حذف</button></div>';
+    box.appendChild(row);
+  });
+  box.querySelectorAll('.branch-edit').forEach(btn=>{
+    btn.onclick=function(){
+      const i=+this.getAttribute('data-i');
+      const b=getBranches()[i];if(!b)return;
+      document.getElementById('branchEditIndex').value=String(i);
+      document.getElementById('branchName').value=b.name||'';
+      document.getElementById('branchAddress').value=b.address||'';
+      document.getElementById('branchPhone').value=b.phone||'';
+      document.getElementById('branchMapUrl').value=b.map_url||'';
+    };
+  });
+  box.querySelectorAll('.branch-del').forEach(btn=>{
+    btn.onclick=async function(){
+      const i=+this.getAttribute('data-i');
+      if(!confirm('حذف هذا الفرع؟'))return;
+      const list=getBranches();list.splice(i,1);
+      await persistBranches(list);
+    };
+  });
+}
+function clearBranchForm(){
+  document.getElementById('branchEditIndex').value='-1';
+  document.getElementById('branchName').value='';
+  document.getElementById('branchAddress').value='';
+  document.getElementById('branchPhone').value='';
+  document.getElementById('branchMapUrl').value='';
+}
+async function saveBranchForm(){
+  const name=(document.getElementById('branchName').value||'').trim();
+  const address=(document.getElementById('branchAddress').value||'').trim();
+  const phone=(document.getElementById('branchPhone').value||'').trim();
+  const map_url=(document.getElementById('branchMapUrl').value||'').trim();
+  if(!name&&!address&&!phone&&!map_url){alert('أدخل بيانات الفرع');return}
+  const list=getBranches();
+  const idx=parseInt(document.getElementById('branchEditIndex').value,10);
+  const item={name,address,phone,map_url};
+  if(idx>=0&&idx<list.length) list[idx]=item; else list.push(item);
+  if(await persistBranches(list)) clearBranchForm();
+}
+function openBranchesModal(){
+  const list=getBranches();
+  if(!list.length){showToast('لا توجد فروع بعد');return}
+  const box=document.getElementById('branchesList');
+  box.innerHTML='';
+  list.forEach(b=>{
+    const card=document.createElement('a');
+    card.href=branchMapsLink(b);
+    card.target='_blank';
+    card.rel='noopener noreferrer';
+    card.className='branch-card block bg-chocolate-50 hover:bg-chocolate-100 border border-chocolate-100 rounded-2xl p-4';
+    card.innerHTML='<div class="flex items-start gap-3">'
+      +'<div class="w-10 h-10 rounded-full bg-chocolate-700 text-white flex items-center justify-center shrink-0">'
+      +'<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg></div>'
+      +'<div class="flex-1 min-w-0"><p class="font-bold text-chocolate-900">'+((b.name||'فرع'))+'</p>'
+      +(b.address?'<p class="text-sm text-chocolate-600 mt-0.5">'+b.address+'</p>':'')
+      +(b.phone?'<p class="text-sm text-chocolate-500 mt-1" dir="ltr">'+b.phone+'</p>':'')
+      +'<p class="text-xs text-chocolate-700 font-semibold mt-2">افتح على الخريطة ←</p></div></div>';
+    box.appendChild(card);
+  });
+  const m=document.getElementById('branchesModal');
+  m.classList.remove('hidden');
+  requestAnimationFrame(()=>requestAnimationFrame(()=>m.classList.add('show')));
+}
+function closeBranchesModal(){
+  const m=document.getElementById('branchesModal');
+  if(!m)return;
+  m.classList.remove('show');
+  setTimeout(()=>m.classList.add('hidden'),280);
+}
+(function bindBranchesUI(){
+  const btn=document.getElementById('branchesBtn');
+  const closeBtn=document.getElementById('closeBranchesModal');
+  const bd=document.getElementById('branchesBackdrop');
+  const save=document.getElementById('branchSaveBtn');
+  const clr=document.getElementById('branchClearBtn');
+  if(btn) btn.onclick=openBranchesModal;
+  if(closeBtn) closeBtn.onclick=closeBranchesModal;
+  if(bd) bd.onclick=closeBranchesModal;
+  if(save) save.onclick=saveBranchForm;
+  if(clr) clr.onclick=clearBranchForm;
 })();
 
 updateCartUI();loadAll();initCategorySwipe();
