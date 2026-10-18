@@ -18,25 +18,10 @@
 body{font-family:'Cairo',sans-serif}
 .card-hover{transition:all .3s ease}.card-hover:hover{transform:translateY(-6px);box-shadow:0 20px 40px rgba(67,48,43,.15)}
 .admin-panel{max-height:min(92vh,900px);overflow:hidden;display:flex;flex-direction:column}
-.admin-panel-body{flex:1 1 auto;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
-body.modal-open{overflow:hidden !important;touch-action:none;position:fixed;width:100%;left:0;right:0}
-#editItemModal{overscroll-behavior:none}
-#editItemModal .modal-panel{
-  max-height:min(92dvh,92vh);
-  display:flex;
-  flex-direction:column;
-  overflow:hidden;
-  width:100%;
-}
-#editItemModal .modal-scroll-body{
-  overflow-y:auto !important;
-  -webkit-overflow-scrolling:touch;
-  overscroll-behavior:contain;
-  flex:1 1 auto;
-  min-height:0;
-  touch-action:pan-y;
-  max-height:none;
-}
+.admin-panel-body{flex:1 1 auto;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;touch-action:pan-y}
+body.modal-open{overflow:hidden !important;position:fixed;width:100%;left:0;right:0;height:100%}
+#editItemModal .modal-panel{max-height:min(92vh,720px);display:flex;flex-direction:column;overflow:hidden}
+#editItemModal .modal-scroll-body{overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;flex:1 1 auto;min-height:0}
 .fade-in{animation:fadeIn .35s ease}@keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
 input,textarea,select{direction:rtl}
 .cat-btn{transition:all .25s ease;white-space:nowrap}.cat-btn.active{background:#846358;color:#fff;box-shadow:0 4px 12px rgba(132,99,88,.35)}.cat-btn:not(.active):hover{background:#f2e8e5}
@@ -258,6 +243,25 @@ body.has-cart-bar #branchesBtn{bottom:5.5rem}
   </div>
 </div>
 
+
+<!-- Confirm Delete Modal -->
+<div id="confirmDeleteModal" class="fixed inset-0 z-[130] hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
+  <div class="absolute inset-0 bg-chocolate-950/55 backdrop-blur-md" id="confirmDeleteBackdrop"></div>
+  <div id="confirmDeleteSheet" class="relative bg-white w-full sm:max-w-sm sm:rounded-3xl rounded-t-3xl shadow-2xl overflow-hidden" style="transform:translateY(16px);opacity:0;transition:transform .3s cubic-bezier(.2,.8,.2,1),opacity .25s">
+    <div class="px-6 pt-6 pb-2 text-center">
+      <div class="w-14 h-14 mx-auto mb-3 rounded-full bg-red-50 flex items-center justify-center">
+        <svg class="w-7 h-7 text-red-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+      </div>
+      <h2 class="text-lg font-bold text-chocolate-900 mb-1" id="confirmDeleteTitle">تأكيد الحذف</h2>
+      <p class="text-sm text-chocolate-600 leading-relaxed" id="confirmDeleteMsg">هل أنت متأكد؟</p>
+    </div>
+    <div class="px-6 py-5 flex gap-3">
+      <button type="button" id="confirmDeleteOk" class="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-2xl">حذف</button>
+      <button type="button" id="confirmDeleteCancel" class="flex-1 border border-chocolate-200 text-chocolate-700 font-semibold py-3 rounded-2xl hover:bg-chocolate-50">إلغاء</button>
+    </div>
+  </div>
+</div>
+
 <div id="adminModal" class="fixed inset-0 z-[100] hidden bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"><div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl admin-panel fade-in"><div class="sticky top-0 bg-chocolate-800 text-white px-6 py-4 rounded-t-2xl flex justify-between items-center"><h2 class="text-xl font-bold">لوحة التحكم</h2><button type="button" id="closeAdmin" class="text-2xl">×</button></div>
 <div class="admin-panel-body">
 <div class="p-4 border-b border-chocolate-200 bg-chocolate-50">
@@ -284,7 +288,7 @@ body.has-cart-bar #branchesBtn{bottom:5.5rem}
 <input type="hidden" id="editShop1Name"><input type="hidden" id="editShop1Phone"><input type="hidden" id="editShop2Name"><input type="hidden" id="editShop2Phone">
 <textarea id="editFooterDesc" rows="2" class="w-full border rounded-lg px-3 py-2 text-sm" placeholder="وصف أسفل الموقع"></textarea><div class="border rounded-xl p-3 space-y-2 bg-white"><h4 class="font-bold text-sm">تواصل</h4><input type="text" id="editWhatsapp" class="w-full border rounded-lg px-3 py-2 text-sm" placeholder="واتساب: 905xxxxxxxxx" dir="ltr"><input type="text" id="editInstagram" class="w-full border rounded-lg px-3 py-2 text-sm" placeholder="إنستغرام" dir="ltr"><input type="text" id="editFacebook" class="w-full border rounded-lg px-3 py-2 text-sm" placeholder="فيسبوك" dir="ltr"></div></div><div class="border-t pt-3"><label class="block text-sm mb-1">كلمة السر</label><input type="password" id="newAdminPassword" class="w-full border rounded-lg px-3 py-2 mb-2" placeholder="جديدة"><input type="password" id="confirmAdminPassword" class="w-full border rounded-lg px-3 py-2" placeholder="تأكيد"></div><button id="saveSiteSettings" class="bg-chocolate-700 text-white px-5 py-2 rounded-lg font-semibold">حفظ الإعدادات</button></div></div><div class="border rounded-xl p-4"><h3 class="font-bold text-lg mb-4">إدارة الأصناف</h3><p class="text-xs text-chocolate-600 mb-2">💡 اسحب بطاقات الأصناف في المنيو لإعادة ترتيبها</p><div id="sectionsManager" class="space-y-4"></div></div></div></div></div></div>
 
-<div id="editItemModal" class="fixed inset-0 z-[110] hidden bg-black/60 flex items-end sm:items-center justify-center p-0 sm:p-4"><div class="modal-panel bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl w-full max-w-md fade-in"><div class="bg-chocolate-800 text-white px-6 py-4 rounded-t-2xl flex justify-between shrink-0"><h2 class="text-xl font-bold" id="editItemTitle">تعديل</h2><button type="button" id="closeEditItem" class="text-2xl leading-none">×</button></div><div class="modal-scroll-body p-6 space-y-4"><input type="text" id="itemName" class="w-full border rounded-lg px-3 py-2" placeholder="اسم"><textarea id="itemDesc" rows="2" class="w-full border rounded-lg px-3 py-2" placeholder="وصف"></textarea><div class="grid grid-cols-2 gap-3"><input type="number" id="itemPriceTRY" class="w-full border rounded-lg px-3 py-2" placeholder="تركي ₺"><input type="number" id="itemPriceSYP" class="w-full border rounded-lg px-3 py-2" placeholder="سوري ل.س"></div><input type="text" id="itemCategory" class="w-full border rounded-lg px-3 py-2" placeholder="قسم"><input type="text" id="itemCategoryIcon" class="w-full border rounded-lg px-3 py-2 hidden" placeholder="أيقونة"><input type="text" id="itemImage" class="w-full border rounded-lg px-3 py-2 mb-2" placeholder="رابط صورة"><label class="cursor-pointer bg-chocolate-100 text-center py-2 rounded-lg text-sm font-semibold block">📷 رفع صورة<input type="file" id="itemImageUpload" accept="image/*" class="hidden"></label><img id="itemImagePreview" class="mt-3 w-full h-40 object-cover rounded-lg hidden border" alt=""><div class="border border-chocolate-200 rounded-xl p-3 space-y-2 bg-chocolate-50"><label class="flex items-center gap-2 text-sm font-medium cursor-pointer"><input type="checkbox" id="itemAvailable" class="w-4 h-4" checked> متوفر للطلب</label><label class="flex items-center gap-2 text-sm font-medium cursor-pointer"><input type="checkbox" id="itemHidden" class="w-4 h-4"> إخفاء من المنيو</label></div><div class="flex gap-3"><button id="saveItem" class="flex-1 bg-chocolate-700 text-white py-2.5 rounded-lg">حفظ</button><button id="deleteItem" class="px-4 bg-red-500 text-white py-2.5 rounded-lg">حذف</button></div></div></div></div>
+<div id="editItemModal" class="fixed inset-0 z-[110] hidden bg-black/60 flex items-center justify-center p-4"><div class="bg-white rounded-2xl shadow-2xl w-full max-w-md fade-in"><div class="bg-chocolate-800 text-white px-6 py-4 rounded-t-2xl flex justify-between"><h2 class="text-xl font-bold" id="editItemTitle">تعديل</h2><button id="closeEditItem" class="text-2xl">×</button></div><div class="p-6 space-y-4"><input type="text" id="itemName" class="w-full border rounded-lg px-3 py-2" placeholder="اسم"><textarea id="itemDesc" rows="2" class="w-full border rounded-lg px-3 py-2" placeholder="وصف"></textarea><div class="grid grid-cols-2 gap-3"><input type="number" id="itemPriceTRY" class="w-full border rounded-lg px-3 py-2" placeholder="تركي ₺"><input type="number" id="itemPriceSYP" class="w-full border rounded-lg px-3 py-2" placeholder="سوري ل.س"></div><input type="text" id="itemCategory" class="w-full border rounded-lg px-3 py-2" placeholder="قسم"><input type="text" id="itemCategoryIcon" class="w-full border rounded-lg px-3 py-2 hidden" placeholder="أيقونة"><input type="text" id="itemImage" class="w-full border rounded-lg px-3 py-2 mb-2" placeholder="رابط صورة"><label class="cursor-pointer bg-chocolate-100 text-center py-2 rounded-lg text-sm font-semibold block">📷 رفع صورة<input type="file" id="itemImageUpload" accept="image/*" class="hidden"></label><img id="itemImagePreview" class="mt-3 w-full h-40 object-cover rounded-lg hidden border" alt=""><div class="border border-chocolate-200 rounded-xl p-3 space-y-2 bg-chocolate-50"><label class="flex items-center gap-2 text-sm font-medium cursor-pointer"><input type="checkbox" id="itemAvailable" class="w-4 h-4" checked> متوفر للطلب</label><label class="flex items-center gap-2 text-sm font-medium cursor-pointer"><input type="checkbox" id="itemHidden" class="w-4 h-4"> إخفاء من المنيو</label></div><div class="flex gap-3"><button id="saveItem" class="flex-1 bg-chocolate-700 text-white py-2.5 rounded-lg">حفظ</button><button id="deleteItem" class="px-4 bg-red-500 text-white py-2.5 rounded-lg">حذف</button></div></div></div></div>
 
 <div id="floatingCart" class="fixed bottom-0 inset-x-0 z-[90] px-3 pb-3 pt-2 pointer-events-none">
 <button type="button" id="openCartBtn" class="pointer-events-auto w-full max-w-lg mx-auto flex items-center justify-between gap-3 bg-chocolate-800 text-white rounded-2xl shadow-2xl px-5 py-3.5">
@@ -364,7 +368,7 @@ function applyShopStatus(){
   if(waBtn){if(open)waBtn.classList.remove('hidden');else waBtn.classList.add('hidden')}
   if(closedMsg){if(open)closedMsg.classList.add('hidden');else closedMsg.classList.remove('hidden')}
 }
-function applySettings(){isShopOpen=!(settings.is_open==='false'||settings.is_open===false||settings.is_open==='0');const name=settings.site_name||'ركن الشوكلاتة';document.getElementById('siteName').textContent=name;document.getElementById('footerName').textContent=name;document.title=name;const logoEl=document.getElementById('siteLogo');function revealImg(el,url,fallback){if(!el)return;const src=url?cacheBust(url):(fallback||'');if(!src){el.style.opacity='0';return}el.onload=function(){el.style.opacity='1'};el.onerror=function(){if(fallback&&el.src.indexOf(fallback)<0)el.src=fallback;else el.style.opacity='0'};el.style.opacity='0';el.src=src;if(el.complete&&el.naturalWidth)el.style.opacity='1'}revealImg(logoEl,settings.logo,'https://images.unsplash.com/photo-1606312619070-d48b4c652a52?w=160&h=160&fit=crop');const fav=settings.favicon||settings.logo||'';const fl=document.getElementById('siteFavicon');if(fl&&fav)fl.href=cacheBust(fav);const hero=document.getElementById('heroCover');if(hero)revealImg(hero,settings.cover||'https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=1600&h=900&fit=crop','');const fd=document.getElementById('footerDesc');if(settings.footer_desc){fd.textContent=settings.footer_desc;fd.classList.remove('hidden')}else{fd.textContent='';fd.classList.add('hidden')}const s1b=document.getElementById('shop1Box');if(settings.shop1_name||settings.shop1_phone){s1b.classList.remove('hidden');document.getElementById('shop1NameEl').textContent=settings.shop1_name||'';const ph=(settings.shop1_phone||'').trim();const a=document.getElementById('shop1PhoneEl');a.textContent=ph;a.href=ph?('tel:'+ph.replace(/\s/g,'')):'#'}else s1b.classList.add('hidden');const s2b=document.getElementById('shop2Box');if(settings.shop2_name||settings.shop2_phone){s2b.classList.remove('hidden');document.getElementById('shop2NameEl').textContent=settings.shop2_name||'';const ph=(settings.shop2_phone||'').trim();const a=document.getElementById('shop2PhoneEl');a.textContent=ph;a.href=ph?('tel:'+ph.replace(/\s/g,'')):'#'}else s2b.classList.add('hidden');function normWa(v){v=(v||'').trim();if(!v)return'';if(/^https?:\/\//i.test(v)||v.includes('wa.me'))return v.startsWith('http')?v:('https://'+v);const d=v.replace(/[^0-9]/g,'');return d?('https://wa.me/'+d):''}function normIg(v){v=(v||'').trim();if(!v)return'';if(/^https?:\/\//i.test(v))return v;return'https://instagram.com/'+v.replace(/^@/,'')}function normFb(v){v=(v||'').trim();if(!v)return'';if(/^https?:\/\//i.test(v))return v;return'https://facebook.com/'+v.replace(/^@/,'')}const wa=document.getElementById('socialWhatsapp'),ig=document.getElementById('socialInstagram'),fb=document.getElementById('socialFacebook');const waU=normWa(settings.whatsapp),igU=normIg(settings.instagram),fbU=normFb(settings.facebook);if(waU){wa.href=waU;wa.classList.remove('hidden')}else wa.classList.add('hidden');if(igU){ig.href=igU;ig.classList.remove('hidden')}else ig.classList.add('hidden');if(fbU){fb.href=fbU;fb.classList.remove('hidden')}else fb.classList.add('hidden');applyShopStatus();try{applyBranchesUI()}catch(e){}}
+function applySettings(){isShopOpen=!(settings.is_open==='false'||settings.is_open===false||settings.is_open==='0');const name=settings.site_name||'ركن الشوكلاتة';document.getElementById('siteName').textContent=name;document.getElementById('footerName').textContent=name;document.title=name;const logoEl=document.getElementById('siteLogo');function revealImg(el,url,fallback){if(!el)return;const src=url?cacheBust(url):(fallback||'');if(!src){el.style.opacity='0';return}el.onload=function(){el.style.opacity='1'};el.onerror=function(){if(fallback&&el.src.indexOf(fallback)<0)el.src=fallback;else el.style.opacity='0'};el.style.opacity='0';el.src=src;if(el.complete&&el.naturalWidth)el.style.opacity='1'}revealImg(logoEl,settings.logo,'https://images.unsplash.com/photo-1606312619070-d48b4c652a52?w=160&h=160&fit=crop');const fav=settings.favicon||settings.logo||'';const fl=document.getElementById('siteFavicon');if(fl&&fav)fl.href=cacheBust(fav);const hero=document.getElementById('heroCover');if(hero)revealImg(hero,settings.cover||'https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=1600&h=900&fit=crop','');const fd=document.getElementById('footerDesc');if(settings.footer_desc){fd.textContent=settings.footer_desc;fd.classList.remove('hidden')}else{fd.textContent='';fd.classList.add('hidden')}const s1b=document.getElementById('shop1Box');const s2b=document.getElementById('shop2Box');if(s1b)s1b.classList.add('hidden');if(s2b)s2b.classList.add('hidden');const _fs=document.getElementById('footerShops');if(_fs)_fs.classList.add('hidden');function normWa(v){v=(v||'').trim();if(!v)return'';if(/^https?:\/\//i.test(v)||v.includes('wa.me'))return v.startsWith('http')?v:('https://'+v);const d=v.replace(/[^0-9]/g,'');return d?('https://wa.me/'+d):''}function normIg(v){v=(v||'').trim();if(!v)return'';if(/^https?:\/\//i.test(v))return v;return'https://instagram.com/'+v.replace(/^@/,'')}function normFb(v){v=(v||'').trim();if(!v)return'';if(/^https?:\/\//i.test(v))return v;return'https://facebook.com/'+v.replace(/^@/,'')}const wa=document.getElementById('socialWhatsapp'),ig=document.getElementById('socialInstagram'),fb=document.getElementById('socialFacebook');const waU=normWa(settings.whatsapp),igU=normIg(settings.instagram),fbU=normFb(settings.facebook);if(waU){wa.href=waU;wa.classList.remove('hidden')}else wa.classList.add('hidden');if(igU){ig.href=igU;ig.classList.remove('hidden')}else ig.classList.add('hidden');if(fbU){fb.href=fbU;fb.classList.remove('hidden')}else fb.classList.add('hidden');applyShopStatus();try{applyBranchesUI()}catch(e){}}
 function renderCategoryBar(){const bar=document.getElementById('categoryBar');if(!bar)return;bar.innerHTML='';sections.forEach(sec=>{const btn=document.createElement('button');const active=sec.title===activeCategory;btn.className='cat-btn px-4 py-2 rounded-full text-sm font-semibold border border-chocolate-200 '+(active?'active':'bg-white text-chocolate-800');btn.textContent=sec.title;btn.setAttribute('data-cat',sec.title);btn.onclick=()=>{if(activeCategory===sec.title)return;window.__swipeDir=0;activeCategory=sec.title;renderCategoryBar();renderActiveSection()};bar.appendChild(btn);if(active){try{btn.scrollIntoView({behavior:'smooth',inline:'center',block:'nearest'})}catch(e){}}})}
 async function persistSortOrder(orderedIds){for(let i=0;i<orderedIds.length;i++){const id=orderedIds[i];await sbClient.from('menu_items').update({sort_order:i+1}).eq('id',id);const it=items.find(x=>String(x.id)===String(id));if(it)it.sort_order=i+1}showToast('تم حفظ الترتيب ✓');rebuildSections()}
 function enableCardDrag(card,item){if(!isAdminUnlocked)return;card.setAttribute('draggable','true');card.classList.add('drag-handle');
@@ -427,28 +431,7 @@ function lockBodyScroll(){
   document.body.classList.add('modal-open');
 }
 
-document.addEventListener('touchmove',function(e){
-  if(!document.body.classList.contains('modal-open')) return;
-  let el=e.target;
-  let allow=false;
-  while(el&&el!==document.body&&el!==document.documentElement){
-    if(el.classList){
-      if(el.classList.contains('admin-panel-body')||el.classList.contains('modal-scroll-body')||el.classList.contains('modal-panel')||el.classList.contains('branches-sheet')||el.classList.contains('rename-sheet')||el.classList.contains('login-sheet')||el.id==='branchesList'||el.id==='editItemModal'){
-        allow=true;break;
-      }
-    }
-    // أي عنصر داخلي قابل للتمرير
-    try{
-      const st=window.getComputedStyle(el);
-      const oy=st.overflowY;
-      if((oy==='auto'||oy==='scroll')&&el.scrollHeight>el.clientHeight+2){
-        allow=true;break;
-      }
-    }catch(err){}
-    el=el.parentElement;
-  }
-  if(!allow) e.preventDefault();
-},{passive:false});
+
 
 function unlockBodyScroll(){
   if(!document.body.classList.contains('modal-open')) return;
@@ -787,33 +770,13 @@ function applyBranchesUI(){
   const list=getBranches();
   const btn=document.getElementById('branchesBtn');
   if(btn){if(list.length){btn.classList.add('is-visible');btn.style.display='inline-flex'}else{btn.classList.remove('is-visible');btn.style.display='none'}}
-  // footer legacy boxes
+  // إخفاء أسماء الفروع من أسفل الصفحة — العرض فقط عبر زر فروعنا
   const s1b=document.getElementById('shop1Box');
   const s2b=document.getElementById('shop2Box');
-  if(s1b){
-    if(list[0]){
-      s1b.classList.remove('hidden');
-      const n=document.getElementById('shop1NameEl');if(n)n.textContent=list[0].name||'';
-      const a=document.getElementById('shop1PhoneEl');
-      if(a){
-        const ph=(list[0].phone||'').trim();
-        if(ph){a.textContent=ph;a.href='tel:'+ph.replace(/\s/g,'');a.classList.remove('hidden')}
-        else{a.textContent='';a.removeAttribute('href')}
-      }
-    } else s1b.classList.add('hidden');
-  }
-  if(s2b){
-    if(list[1]){
-      s2b.classList.remove('hidden');
-      const n=document.getElementById('shop2NameEl');if(n)n.textContent=list[1].name||'';
-      const a=document.getElementById('shop2PhoneEl');
-      if(a){
-        const ph=(list[1].phone||'').trim();
-        if(ph){a.textContent=ph;a.href='tel:'+ph.replace(/\s/g,'');a.classList.remove('hidden')}
-        else{a.textContent='';a.removeAttribute('href')}
-      }
-    } else s2b.classList.add('hidden');
-  }
+  if(s1b) s1b.classList.add('hidden');
+  if(s2b) s2b.classList.add('hidden');
+  const fs=document.getElementById('footerShops');
+  if(fs) fs.classList.add('hidden');
   renderBranchesAdmin();
 }
 function renderBranchesAdmin(){
@@ -851,8 +814,11 @@ function renderBranchesAdmin(){
   box.querySelectorAll('.branch-del').forEach(btn=>{
     btn.onclick=async function(){
       const i=+this.getAttribute('data-i');
-      if(!confirm('حذف هذا الفرع؟'))return;
-      const list=getBranches();list.splice(i,1);
+      const list=getBranches();
+      const name=(list[i]&&list[i].name)||'هذا الفرع';
+      const ok=await openConfirmDelete('حذف الفرع','هل تريد حذف «'+name+'»؟ لا يمكن التراجع.');
+      if(!ok)return;
+      list.splice(i,1);
       await persistBranches(list);
     };
   });
@@ -991,6 +957,44 @@ async function confirmRenameCategory(){
   if(inp) inp.addEventListener('keydown',function(e){
     if(e.key==='Enter'){e.preventDefault();confirmRenameCategory()}
   });
+})();
+
+
+let __confirmDeleteResolve=null;
+function openConfirmDelete(title,msg){
+  return new Promise((resolve)=>{
+    __confirmDeleteResolve=resolve;
+    const m=document.getElementById('confirmDeleteModal');
+    const sheet=document.getElementById('confirmDeleteSheet');
+    const t=document.getElementById('confirmDeleteTitle');
+    const p=document.getElementById('confirmDeleteMsg');
+    if(t) t.textContent=title||'تأكيد الحذف';
+    if(p) p.textContent=msg||'هل أنت متأكد؟';
+    if(!m){resolve(false);return}
+    m.classList.remove('hidden');
+    lockBodyScroll();
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{
+      if(sheet){sheet.style.transform='translateY(0)';sheet.style.opacity='1'}
+    }));
+  });
+}
+function closeConfirmDelete(result){
+  const m=document.getElementById('confirmDeleteModal');
+  const sheet=document.getElementById('confirmDeleteSheet');
+  if(sheet){sheet.style.transform='translateY(16px)';sheet.style.opacity='0'}
+  setTimeout(()=>{
+    if(m) m.classList.add('hidden');
+    unlockBodyScroll();
+    if(__confirmDeleteResolve){__confirmDeleteResolve(!!result);__confirmDeleteResolve=null}
+  },250);
+}
+(function bindConfirmDelete(){
+  const ok=document.getElementById('confirmDeleteOk');
+  const cancel=document.getElementById('confirmDeleteCancel');
+  const bd=document.getElementById('confirmDeleteBackdrop');
+  if(ok) ok.onclick=()=>closeConfirmDelete(true);
+  if(cancel) cancel.onclick=()=>closeConfirmDelete(false);
+  if(bd) bd.onclick=()=>closeConfirmDelete(false);
 })();
 
 updateCartUI();loadAll();initCategorySwipe();
