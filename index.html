@@ -8,6 +8,11 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<!-- Floating Branches Button -->
+<button type="button" id="branchesBtn" class="is-visible" aria-label="فروعنا" style="display:none">
+  <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+  فروعنا
+</button>
 <script>tailwind.config={theme:{extend:{colors:{chocolate:{50:'#fdf8f6',100:'#f2e8e5',200:'#eaddd7',300:'#e0cec7',400:'#d2bab0',500:'#bfa094',600:'#a18072',700:'#977669',800:'#846358',900:'#43302b',950:'#2c1810'}},fontFamily:{cairo:['Cairo','sans-serif']}}}}</script>
 <style>
 body{font-family:'Cairo',sans-serif}
@@ -71,7 +76,30 @@ img.fade-img{opacity:0;transition:opacity .45s ease}img.fade-img.is-loaded{opaci
   transition:transform .35s cubic-bezier(.2,.8,.2,1),opacity .3s ease;
 }
 #branchesModal.show .branches-sheet{transform:translateY(0) scale(1);opacity:1}
-#branchesBtn{box-shadow:0 8px 24px rgba(67,48,43,.25)}
+/* Floating Branches FAB */
+#branchesBtn{
+  position:fixed;
+  bottom:1.25rem;
+  left:1rem; /* عائم أسفل اليسار مثل الموقع المرجعي */
+  z-index:60;
+  display:none;
+  align-items:center;
+  gap:.5rem;
+  background:linear-gradient(135deg,#5c4033 0%,#43302b 100%);
+  color:#fff;
+  font-weight:700;
+  font-size:.875rem;
+  padding:.7rem 1.15rem;
+  border-radius:9999px;
+  border:none;
+  box-shadow:0 10px 28px rgba(67,48,43,.35),0 2px 8px rgba(0,0,0,.12);
+  transition:transform .2s ease,box-shadow .2s ease,bottom .25s ease,opacity .25s ease;
+}
+#branchesBtn.is-visible{display:inline-flex}
+#branchesBtn:active{transform:scale(.96)}
+#branchesBtn svg{width:1.15rem;height:1.15rem;flex-shrink:0}
+/* ارفع الزر فوق شريط السلة العائم إن وُجد */
+body.has-cart-bar #branchesBtn{bottom:5.5rem}
 .branch-card{transition:transform .15s,box-shadow .15s}
 .branch-card:active{transform:scale(.98)}
 </style>
@@ -116,12 +144,7 @@ img.fade-img{opacity:0;transition:opacity .45s ease}img.fade-img.is-loaded{opaci
 <h3 id="footerName" class="text-xl font-bold mb-3">ركن الشوكلاتة</h3>
 <p id="footerDesc" class="text-chocolate-300 text-sm mb-5 max-w-xl mx-auto leading-relaxed hidden"></p>
 
-<div class="flex justify-center mb-5">
-  <button type="button" id="branchesBtn" class="hidden inline-flex items-center gap-2 bg-chocolate-700 hover:bg-chocolate-800 text-white font-bold px-6 py-3 rounded-full text-sm">
-    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-    فروعنا
-  </button>
-</div>
+
 <div id="footerShops" class="flex flex-col sm:flex-row justify-center gap-6 mb-5">
 <div id="shop1Box" class="hidden"><p id="shop1NameEl" class="font-semibold text-white mb-1"></p><a id="shop1PhoneEl" href="#" class="text-chocolate-200 hover:text-white text-sm" dir="ltr"></a></div>
 <div id="shop2Box" class="hidden"><p id="shop2NameEl" class="font-semibold text-white mb-1"></p><a id="shop2PhoneEl" href="#" class="text-chocolate-200 hover:text-white text-sm" dir="ltr"></a></div>
@@ -248,7 +271,7 @@ function cartList(){return Object.values(cart).filter(x=>x&&x.qty>0)}
 function cartCount(){return cartList().reduce((s,x)=>s+(x.qty||0),0)}
 function cartTotals(){let t=0,s=0;cartList().forEach(x=>{t+=(Number(x.price_try)||0)*(x.qty||0);s+=(Number(x.price_syp)||0)*(x.qty||0)});return{try:t,syp:s}}
 function formatMoney(a,b){a=Number(a)||0;b=Number(b)||0;if(a>0&&b>0)return a+' ₺ | '+b+' ل.س';if(a>0)return a+' ₺';if(b>0)return b+' ل.س';return'0'}
-function updateCartUI(){const n=cartCount(),tot=cartTotals(),bar=document.getElementById('floatingCart'),badge=document.getElementById('cartCountBadge'),totalEl=document.getElementById('cartTotalBar'),grand=document.getElementById('cartGrandTotal');if(badge)badge.textContent=String(n);const money=formatMoney(tot.try,tot.syp);if(totalEl)totalEl.textContent=money;if(grand)grand.textContent=money;if(bar){if(n>0)bar.classList.add('show');else bar.classList.remove('show')}document.querySelectorAll('[data-item-id]').forEach(el=>{const id=el.getAttribute('data-item-id'),q=(cart[id]&&cart[id].qty)||0,qtyEl=el.querySelector('.qty-value'),controls=el.querySelector('.qty-controls'),addOnly=el.querySelector('.qty-add-only');if(qtyEl)qtyEl.textContent=String(q);if(controls&&addOnly){if(q>0){controls.classList.remove('hidden');addOnly.classList.add('hidden')}else{controls.classList.add('hidden');addOnly.classList.remove('hidden')}}})}
+function updateCartUI(){const n=cartCount(),tot=cartTotals(),bar=document.getElementById('floatingCart'),badge=document.getElementById('cartCountBadge'),totalEl=document.getElementById('cartTotalBar'),grand=document.getElementById('cartGrandTotal');if(badge)badge.textContent=String(n);const money=formatMoney(tot.try,tot.syp);if(totalEl)totalEl.textContent=money;if(grand)grand.textContent=money;if(bar){if(n>0){bar.classList.add('show');document.body.classList.add('has-cart-bar')}else{bar.classList.remove('show');document.body.classList.remove('has-cart-bar')}}document.querySelectorAll('[data-item-id]').forEach(el=>{const id=el.getAttribute('data-item-id'),q=(cart[id]&&cart[id].qty)||0,qtyEl=el.querySelector('.qty-value'),controls=el.querySelector('.qty-controls'),addOnly=el.querySelector('.qty-add-only');if(qtyEl)qtyEl.textContent=String(q);if(controls&&addOnly){if(q>0){controls.classList.remove('hidden');addOnly.classList.add('hidden')}else{controls.classList.add('hidden');addOnly.classList.remove('hidden')}}})}
 function addToCart(item,delta){if(!item||!item.id)return;if(isShopOpen===false){alert('المطبخ مغلق حالياً ولا يستقبل طلبات جديدة');return}if(item.is_available===false){alert('هذا الصنف نفد حالياً');return}const id=String(item.id);if(!cart[id])cart[id]={id:id,name:item.name||'',price_try:Number(item.price_try)||0,price_syp:Number(item.price_syp)||0,qty:0};cart[id].qty=Math.max(0,(cart[id].qty||0)+delta);if(cart[id].qty===0)delete cart[id];saveCart();updateCartUI();renderCartModal()}
 function renderCartModal(){const list=document.getElementById('cartItemsList');if(!list)return;const rows=cartList();if(!rows.length){list.innerHTML='<p class="text-center text-chocolate-500 py-8 text-sm">السلة فارغة</p>';return}list.innerHTML=rows.map(x=>{const lineTry=(Number(x.price_try)||0)*(x.qty||0),lineSyp=(Number(x.price_syp)||0)*(x.qty||0);return'<div class="flex items-center gap-3 bg-white border rounded-xl p-3"><div class="flex-1 min-w-0"><p class="font-bold truncate">'+x.name+'</p><p class="text-xs text-chocolate-600">'+formatMoney(lineTry,lineSyp)+'</p></div><div class="flex items-center gap-1.5"><button type="button" class="qty-btn bg-chocolate-100 cart-minus" data-id="'+x.id+'">−</button><span class="w-7 text-center font-bold text-sm">'+x.qty+'</span><button type="button" class="qty-btn bg-chocolate-700 text-white cart-plus" data-id="'+x.id+'">+</button></div></div>'}).join('');list.querySelectorAll('.cart-minus').forEach(b=>b.onclick=()=>{const id=b.getAttribute('data-id');if(cart[id])addToCart(cart[id],-1)});list.querySelectorAll('.cart-plus').forEach(b=>b.onclick=()=>{const id=b.getAttribute('data-id');if(cart[id])addToCart(cart[id],1)});applyShopStatus()}
 function normalizePhoneDigits(raw){if(!raw)return'';let s=String(raw).trim();let m=s.match(/(?:wa\.me\/|api\.whatsapp\.com\/send\?[^#]*phone=)(\d{10,15})/i);if(m)return m[1];let d=s.replace(/[^0-9]/g,'');if(d.indexOf('00')===0)d=d.slice(2);if(/^05\d{9}$/.test(d))d='90'+d.slice(1);if(/^09\d{8}$/.test(d))d='963'+d.slice(1);if(d.length>=10&&d.length<=15)return d;return''}
@@ -661,7 +684,7 @@ function branchMapsLink(b){
 function applyBranchesUI(){
   const list=getBranches();
   const btn=document.getElementById('branchesBtn');
-  if(btn){if(list.length)btn.classList.remove('hidden');else btn.classList.add('hidden')}
+  if(btn){if(list.length){btn.classList.add('is-visible');btn.style.display='inline-flex'}else{btn.classList.remove('is-visible');btn.style.display='none'}}
   // footer legacy boxes
   const s1b=document.getElementById('shop1Box');
   const s2b=document.getElementById('shop2Box');
@@ -797,5 +820,8 @@ function closeBranchesModal(){
 updateCartUI();loadAll();initCategorySwipe();
 
 </script>
+
+
+
 </body>
 </html>
