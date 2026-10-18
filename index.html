@@ -20,8 +20,23 @@ body{font-family:'Cairo',sans-serif}
 .admin-panel{max-height:min(92vh,900px);overflow:hidden;display:flex;flex-direction:column}
 .admin-panel-body{flex:1 1 auto;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
 body.modal-open{overflow:hidden !important;touch-action:none;position:fixed;width:100%;left:0;right:0}
-#editItemModal .modal-panel{max-height:min(92vh,720px);display:flex;flex-direction:column;overflow:hidden}
-#editItemModal .modal-scroll-body{overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;flex:1 1 auto;min-height:0}
+#editItemModal{overscroll-behavior:none}
+#editItemModal .modal-panel{
+  max-height:min(92dvh,92vh);
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+  width:100%;
+}
+#editItemModal .modal-scroll-body{
+  overflow-y:auto !important;
+  -webkit-overflow-scrolling:touch;
+  overscroll-behavior:contain;
+  flex:1 1 auto;
+  min-height:0;
+  touch-action:pan-y;
+  max-height:none;
+}
 .fade-in{animation:fadeIn .35s ease}@keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
 input,textarea,select{direction:rtl}
 .cat-btn{transition:all .25s ease;white-space:nowrap}.cat-btn.active{background:#846358;color:#fff;box-shadow:0 4px 12px rgba(132,99,88,.35)}.cat-btn:not(.active):hover{background:#f2e8e5}
@@ -269,7 +284,7 @@ body.has-cart-bar #branchesBtn{bottom:5.5rem}
 <input type="hidden" id="editShop1Name"><input type="hidden" id="editShop1Phone"><input type="hidden" id="editShop2Name"><input type="hidden" id="editShop2Phone">
 <textarea id="editFooterDesc" rows="2" class="w-full border rounded-lg px-3 py-2 text-sm" placeholder="وصف أسفل الموقع"></textarea><div class="border rounded-xl p-3 space-y-2 bg-white"><h4 class="font-bold text-sm">تواصل</h4><input type="text" id="editWhatsapp" class="w-full border rounded-lg px-3 py-2 text-sm" placeholder="واتساب: 905xxxxxxxxx" dir="ltr"><input type="text" id="editInstagram" class="w-full border rounded-lg px-3 py-2 text-sm" placeholder="إنستغرام" dir="ltr"><input type="text" id="editFacebook" class="w-full border rounded-lg px-3 py-2 text-sm" placeholder="فيسبوك" dir="ltr"></div></div><div class="border-t pt-3"><label class="block text-sm mb-1">كلمة السر</label><input type="password" id="newAdminPassword" class="w-full border rounded-lg px-3 py-2 mb-2" placeholder="جديدة"><input type="password" id="confirmAdminPassword" class="w-full border rounded-lg px-3 py-2" placeholder="تأكيد"></div><button id="saveSiteSettings" class="bg-chocolate-700 text-white px-5 py-2 rounded-lg font-semibold">حفظ الإعدادات</button></div></div><div class="border rounded-xl p-4"><h3 class="font-bold text-lg mb-4">إدارة الأصناف</h3><p class="text-xs text-chocolate-600 mb-2">💡 اسحب بطاقات الأصناف في المنيو لإعادة ترتيبها</p><div id="sectionsManager" class="space-y-4"></div></div></div></div></div></div>
 
-<div id="editItemModal" class="fixed inset-0 z-[110] hidden bg-black/60 flex items-center justify-center p-4"><div class="bg-white rounded-2xl shadow-2xl w-full max-w-md fade-in"><div class="bg-chocolate-800 text-white px-6 py-4 rounded-t-2xl flex justify-between"><h2 class="text-xl font-bold" id="editItemTitle">تعديل</h2><button id="closeEditItem" class="text-2xl">×</button></div><div class="p-6 space-y-4"><input type="text" id="itemName" class="w-full border rounded-lg px-3 py-2" placeholder="اسم"><textarea id="itemDesc" rows="2" class="w-full border rounded-lg px-3 py-2" placeholder="وصف"></textarea><div class="grid grid-cols-2 gap-3"><input type="number" id="itemPriceTRY" class="w-full border rounded-lg px-3 py-2" placeholder="تركي ₺"><input type="number" id="itemPriceSYP" class="w-full border rounded-lg px-3 py-2" placeholder="سوري ل.س"></div><input type="text" id="itemCategory" class="w-full border rounded-lg px-3 py-2" placeholder="قسم"><input type="text" id="itemCategoryIcon" class="w-full border rounded-lg px-3 py-2 hidden" placeholder="أيقونة"><input type="text" id="itemImage" class="w-full border rounded-lg px-3 py-2 mb-2" placeholder="رابط صورة"><label class="cursor-pointer bg-chocolate-100 text-center py-2 rounded-lg text-sm font-semibold block">📷 رفع صورة<input type="file" id="itemImageUpload" accept="image/*" class="hidden"></label><img id="itemImagePreview" class="mt-3 w-full h-40 object-cover rounded-lg hidden border" alt=""><div class="border border-chocolate-200 rounded-xl p-3 space-y-2 bg-chocolate-50"><label class="flex items-center gap-2 text-sm font-medium cursor-pointer"><input type="checkbox" id="itemAvailable" class="w-4 h-4" checked> متوفر للطلب</label><label class="flex items-center gap-2 text-sm font-medium cursor-pointer"><input type="checkbox" id="itemHidden" class="w-4 h-4"> إخفاء من المنيو</label></div><div class="flex gap-3"><button id="saveItem" class="flex-1 bg-chocolate-700 text-white py-2.5 rounded-lg">حفظ</button><button id="deleteItem" class="px-4 bg-red-500 text-white py-2.5 rounded-lg">حذف</button></div></div></div></div>
+<div id="editItemModal" class="fixed inset-0 z-[110] hidden bg-black/60 flex items-end sm:items-center justify-center p-0 sm:p-4"><div class="modal-panel bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl w-full max-w-md fade-in"><div class="bg-chocolate-800 text-white px-6 py-4 rounded-t-2xl flex justify-between shrink-0"><h2 class="text-xl font-bold" id="editItemTitle">تعديل</h2><button type="button" id="closeEditItem" class="text-2xl leading-none">×</button></div><div class="modal-scroll-body p-6 space-y-4"><input type="text" id="itemName" class="w-full border rounded-lg px-3 py-2" placeholder="اسم"><textarea id="itemDesc" rows="2" class="w-full border rounded-lg px-3 py-2" placeholder="وصف"></textarea><div class="grid grid-cols-2 gap-3"><input type="number" id="itemPriceTRY" class="w-full border rounded-lg px-3 py-2" placeholder="تركي ₺"><input type="number" id="itemPriceSYP" class="w-full border rounded-lg px-3 py-2" placeholder="سوري ل.س"></div><input type="text" id="itemCategory" class="w-full border rounded-lg px-3 py-2" placeholder="قسم"><input type="text" id="itemCategoryIcon" class="w-full border rounded-lg px-3 py-2 hidden" placeholder="أيقونة"><input type="text" id="itemImage" class="w-full border rounded-lg px-3 py-2 mb-2" placeholder="رابط صورة"><label class="cursor-pointer bg-chocolate-100 text-center py-2 rounded-lg text-sm font-semibold block">📷 رفع صورة<input type="file" id="itemImageUpload" accept="image/*" class="hidden"></label><img id="itemImagePreview" class="mt-3 w-full h-40 object-cover rounded-lg hidden border" alt=""><div class="border border-chocolate-200 rounded-xl p-3 space-y-2 bg-chocolate-50"><label class="flex items-center gap-2 text-sm font-medium cursor-pointer"><input type="checkbox" id="itemAvailable" class="w-4 h-4" checked> متوفر للطلب</label><label class="flex items-center gap-2 text-sm font-medium cursor-pointer"><input type="checkbox" id="itemHidden" class="w-4 h-4"> إخفاء من المنيو</label></div><div class="flex gap-3"><button id="saveItem" class="flex-1 bg-chocolate-700 text-white py-2.5 rounded-lg">حفظ</button><button id="deleteItem" class="px-4 bg-red-500 text-white py-2.5 rounded-lg">حذف</button></div></div></div></div>
 
 <div id="floatingCart" class="fixed bottom-0 inset-x-0 z-[90] px-3 pb-3 pt-2 pointer-events-none">
 <button type="button" id="openCartBtn" class="pointer-events-auto w-full max-w-lg mx-auto flex items-center justify-between gap-3 bg-chocolate-800 text-white rounded-2xl shadow-2xl px-5 py-3.5">
@@ -414,14 +429,22 @@ function lockBodyScroll(){
 
 document.addEventListener('touchmove',function(e){
   if(!document.body.classList.contains('modal-open')) return;
-  // السماح بالتمرير فقط داخل مناطق اللوحات القابلة للتمرير
   let el=e.target;
   let allow=false;
-  while(el&&el!==document.body){
-    if(el.classList&&(el.classList.contains('admin-panel-body')||el.classList.contains('modal-scroll-body')||el.classList.contains('branches-sheet')||el.id==='branchesList')){
-      // إذا وصل للحد الأعلى/الأسفل قد يمرر للخلفية — overscroll-behavior يساعد
-      allow=true;break;
+  while(el&&el!==document.body&&el!==document.documentElement){
+    if(el.classList){
+      if(el.classList.contains('admin-panel-body')||el.classList.contains('modal-scroll-body')||el.classList.contains('modal-panel')||el.classList.contains('branches-sheet')||el.classList.contains('rename-sheet')||el.classList.contains('login-sheet')||el.id==='branchesList'||el.id==='editItemModal'){
+        allow=true;break;
+      }
     }
+    // أي عنصر داخلي قابل للتمرير
+    try{
+      const st=window.getComputedStyle(el);
+      const oy=st.overflowY;
+      if((oy==='auto'||oy==='scroll')&&el.scrollHeight>el.clientHeight+2){
+        allow=true;break;
+      }
+    }catch(err){}
     el=el.parentElement;
   }
   if(!allow) e.preventDefault();
