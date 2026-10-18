@@ -4,19 +4,20 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ركن الشوكلاتة</title>
+<meta name="theme-color" content="#43302b">
+<link rel="preconnect" href="https://pfslgeehnliczddigdtw.supabase.co" crossorigin>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="dns-prefetch" href="https://cdn.tailwindcss.com">
 <link id="siteFavicon" rel="icon" type="image/png" href="https://images.unsplash.com/photo-1606312619070-d48b4c652a52?w=64&h=64&fit=crop">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com"></script>
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<!-- Floating Branches Button -->
-<button type="button" id="branchesBtn" class="is-visible" aria-label="فروعنا" style="display:none">
-  <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-  فروعنا
-</button>
 <script>tailwind.config={theme:{extend:{colors:{chocolate:{50:'#fdf8f6',100:'#f2e8e5',200:'#eaddd7',300:'#e0cec7',400:'#d2bab0',500:'#bfa094',600:'#a18072',700:'#977669',800:'#846358',900:'#43302b',950:'#2c1810'}},fontFamily:{cairo:['Cairo','sans-serif']}}}}</script>
 <style>
 body{font-family:'Cairo',sans-serif}
-.card-hover{transition:all .3s ease}.card-hover:hover{transform:translateY(-6px);box-shadow:0 20px 40px rgba(67,48,43,.15)}
+.card-hover{transition:transform .2s ease,box-shadow .2s ease}.card-hover:hover{transform:translateY(-4px);box-shadow:0 12px 28px rgba(67,48,43,.12)}
 .admin-panel{max-height:min(92vh,900px);overflow:hidden;display:flex;flex-direction:column}
 .admin-panel-body{flex:1 1 auto;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;touch-action:pan-y}
 body.modal-open{overflow:hidden !important;position:fixed;width:100%;left:0;right:0;height:100%}
@@ -131,7 +132,7 @@ body.has-cart-bar #branchesBtn{bottom:5.5rem}
 <div class="container mx-auto px-4 py-3 flex items-center justify-between">
 <div class="flex items-center gap-3">
 <a id="logoHomeLink" href="/" class="inline-block group shrink-0">
-<img id="siteLogo" src="" alt="شعار" class="w-12 h-12 md:w-14 md:h-14 rounded-full object-cover border-2 border-chocolate-600 shadow group-hover:scale-105 transition-all duration-300 opacity-0">
+<img id="siteLogo" src="" alt="شعار" decoding="async" fetchpriority="high" class="w-12 h-12 md:w-14 md:h-14 rounded-full object-cover border-2 border-chocolate-600 shadow group-hover:scale-105 transition-all duration-300 opacity-0">
 </a>
 <div>
 <h1 id="siteName" class="text-lg md:text-xl font-bold text-chocolate-900">ركن الشوكلاتة</h1>
@@ -141,7 +142,7 @@ body.has-cart-bar #branchesBtn{bottom:5.5rem}
 </div></header>
 <div id="shopClosedBanner" class="shop-closed-banner hidden sticky top-[60px] z-[45]">عذراً، المطبخ مغلق حالياً ولا يستقبل طلبات جديدة. يمكنك تصفح المنيو فقط</div>
 <section class="relative h-[280px] md:h-[380px] overflow-hidden bg-chocolate-200">
-<img id="heroCover" src="" alt="Hero" class="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-500">
+<img id="heroCover" src="" alt="Hero" fetchpriority="high" decoding="async" class="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-500">
 <div class="absolute inset-0 bg-gradient-to-t from-chocolate-950/90 via-chocolate-900/50 to-transparent"></div>
 <div class="relative h-full container mx-auto px-4 flex flex-col justify-end pb-8 text-white">
 <h2 class="text-3xl md:text-5xl font-extrabold mb-2 drop-shadow-lg">ركن الشوكلاتة</h2>
@@ -385,13 +386,28 @@ function getWhatsappNumber(){const candidates=[settings.whatsapp,settings.shop1_
 function buildOrderMessage(){const rows=cartList(),site=settings.site_name||'ركن الشوكلاتة',lines=[];lines.push('مرحباً '+site+'، أود طلب الآتي:');lines.push('');rows.forEach(x=>{lines.push('ـ '+x.qty+' × '+x.name+' ('+formatMoney((Number(x.price_try)||0)*x.qty,(Number(x.price_syp)||0)*x.qty)+')')});const notes=(document.getElementById('cartNotes')&&document.getElementById('cartNotes').value||'').trim();lines.push('');if(notes){lines.push('الملاحظات: '+notes);lines.push('')}const tot=cartTotals();lines.push('المجموع الإجمالي: '+formatMoney(tot.try,tot.syp));return lines.join('\n')}
 function sendWhatsappOrder(){if(isShopOpen===false){alert('المطبخ مغلق حالياً ولا يستقبل طلبات جديدة');return}if(!cartCount()){alert('السلة فارغة');return}const phoneNumber=String(getWhatsappNumber()||'').replace(/[^0-9]/g,'');if(!phoneNumber||phoneNumber.length<10){alert('رقم الواتساب غير صحيح');return}window.open('https://wa.me/'+phoneNumber+'?text='+encodeURIComponent(buildOrderMessage()),'_blank')}
 function toPublicUrl(url){if(!url)return'';url=String(url).trim();if(url.indexOf('http')===0)return url;if(url.indexOf('menu-images/')>=0)return SUPABASE_URL+'/storage/v1/object/public/'+url.replace(/^\/+/, '');return SUPABASE_URL+'/storage/v1/object/public/'+STORAGE_BUCKET+'/'+url.replace(/^\/+/, '')}
-function cacheBust(url){url=toPublicUrl(url);if(!url)return url;return url+(url.indexOf('?')>=0?'&':'?')+'t='+Date.now()}
+function cacheBust(url,force){url=toPublicUrl(url);if(!url)return url;if(!force)return url;const t=Date.now();return url+(url.indexOf('?')>=0?'&':'?')+'t='+t}
 function showToast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.remove('opacity-0');t.classList.add('opacity-100');setTimeout(()=>{t.classList.add('opacity-0');t.classList.remove('opacity-100')},2500)}
 function groupIntoSections(list){const map={};list.forEach(item=>{const cat=stripEmojis(item.category)||'عام';if(!map[cat])map[cat]={title:cat,icon:'',items:[]};map[cat].items.push(item)});Object.values(map).forEach(sec=>sec.items.sort((a,b)=>(a.sort_order||0)-(b.sort_order||0)));return Object.values(map)}
 function rebuildSections(){const list=isAdminUnlocked?items:items.filter(it=>!it.is_hidden);sections=groupIntoSections(list);let extra=[];try{extra=JSON.parse(settings.extra_categories||'[]')||[]}catch(e){extra=[]}extra=extra.map(stripEmojis).filter(Boolean);extra.forEach(cat=>{if(!sections.find(s=>s.title===cat)) sections.push({title:cat,icon:'',items:[]})});let order=[];try{order=JSON.parse(settings.categories_order||'[]')||[]}catch(e){order=[]}order=order.map(stripEmojis).filter(Boolean);if(order.length){sections.sort((a,b)=>{const ia=order.indexOf(a.title),ib=order.indexOf(b.title);if(ia<0&&ib<0)return 0;if(ia<0)return 1;if(ib<0)return -1;return ia-ib})}}
-async function loadSettings(){const {data,error}=await sbClient.from('site_settings').select('key,value');if(error){console.error(error);return}settings={};(data||[]).forEach(r=>settings[r.key]=r.value);applySettings()}
-async function loadItems(){const {data,error}=await sbClient.from('menu_items').select('*').order('sort_order',{ascending:true});if(error){document.getElementById('menuContainer').innerHTML='<div class="text-center py-20 text-red-600">خطأ: '+error.message+'</div>';return}items=data||[];rebuildSections();if(!activeCategory&&sections.length)activeCategory=sections[0].title;if(activeCategory&&!sections.find(s=>s.title===activeCategory))activeCategory=sections.length?sections[0].title:null;renderCategoryBar();renderActiveSection();if(isAdminUnlocked)renderSectionsManager();updateCartUI()}
-async function loadAll(){await loadSettings();await loadItems()}
+async function loadSettings(){
+  try{const c=sessionStorage.getItem('rukn_settings_v1');if(c){settings=JSON.parse(c)||{};applySettings()}}catch(e){}
+  const {data,error}=await sbClient.from('site_settings').select('key,value');
+  if(error){console.error(error);return}
+  settings={};(data||[]).forEach(r=>settings[r.key]=r.value);
+  try{sessionStorage.setItem('rukn_settings_v1',JSON.stringify(settings))}catch(e){}
+  applySettings()
+}
+async function loadItems(){
+  const paint=()=>{rebuildSections();if(!activeCategory&&sections.length)activeCategory=sections[0].title;if(activeCategory&&!sections.find(s=>s.title===activeCategory))activeCategory=sections.length?sections[0].title:null;renderCategoryBar();renderActiveSection();if(isAdminUnlocked)renderSectionsManager();updateCartUI()};
+  try{const c=sessionStorage.getItem('rukn_items_v1');if(c){const arr=JSON.parse(c);if(Array.isArray(arr)&&arr.length){items=arr;paint()}}}catch(e){}
+  const {data,error}=await sbClient.from('menu_items').select('id,name,description,price_try,price_syp,category,image_url,sort_order,is_available,is_hidden').order('sort_order',{ascending:true});
+  if(error){if(!items.length)document.getElementById('menuContainer').innerHTML='<div class="text-center py-20 text-red-600">خطأ: '+error.message+'</div>';return}
+  items=data||[];
+  try{sessionStorage.setItem('rukn_items_v1',JSON.stringify(items))}catch(e){}
+  paint();
+}
+async function loadAll(){await Promise.all([loadSettings(),loadItems()])}
 function applyShopStatus(){
   const open=isShopOpen!==false;
   const banner=document.getElementById('shopClosedBanner');
@@ -429,7 +445,7 @@ function renderItemCard(grid,item,idx){
   const soldBadge=soldOut?'<div class="absolute inset-0 bg-black/35 flex items-center justify-center"><span class="bg-red-600 text-white text-sm font-extrabold px-4 py-1.5 rounded-full">نفد</span></div>':'';
   const hiddenBadge=(isAdminUnlocked&&item.is_hidden)?'<div class="absolute top-3 right-3 bg-chocolate-900/90 text-white text-[10px] font-bold px-2 py-1 rounded-full">مخفي</div>':'';
   const dragHint=isAdminUnlocked?'<div class="absolute bottom-2 right-2 bg-white/90 text-chocolate-700 text-[10px] font-bold px-2 py-0.5 rounded-full shadow">↕ سحب</div>':'';
-  card.innerHTML='<div class="relative h-48 overflow-hidden bg-chocolate-100"><img src="'+img+'" class="fade-img w-full h-full object-cover'+(soldOut?' grayscale':'')+'" loading="lazy" alt="" onload="this.classList.add(\'is-loaded\')">'+soldBadge+hiddenBadge+dragHint+'<div class="absolute top-3 left-3 bg-chocolate-800/90 text-white text-xs font-bold px-2.5 py-1.5 rounded-full">'+(item.price_try||0)+' ₺ | '+(item.price_syp||0)+' ل.س</div></div><div class="p-4"><h3 class="font-bold text-lg mb-1">'+(item.name||'')+'</h3><p class="text-sm text-chocolate-600 line-clamp-2">'+(item.description||'')+'</p>'+qtyBlock+'</div>';
+  card.innerHTML='<div class="relative h-48 overflow-hidden bg-chocolate-100"><img src="'+img+'" class="fade-img w-full h-full object-cover'+(soldOut?' grayscale':'')+'" loading="lazy" decoding="async" alt="" onload="this.classList.add(\'is-loaded\')">'+soldBadge+hiddenBadge+dragHint+'<div class="absolute top-3 left-3 bg-chocolate-800/90 text-white text-xs font-bold px-2.5 py-1.5 rounded-full">'+(item.price_try||0)+' ₺ | '+(item.price_syp||0)+' ل.س</div></div><div class="p-4"><h3 class="font-bold text-lg mb-1">'+(item.name||'')+'</h3><p class="text-sm text-chocolate-600 line-clamp-2">'+(item.description||'')+'</p>'+qtyBlock+'</div>';
   grid.appendChild(card);
   if(!soldOut&&isShopOpen!==false){const addBtn=card.querySelector('.add-one'),plusBtn=card.querySelector('.qty-plus'),minusBtn=card.querySelector('.qty-minus');if(addBtn)addBtn.onclick=e=>{e.stopPropagation();addToCart(item,1)};if(plusBtn)plusBtn.onclick=e=>{e.stopPropagation();addToCart(item,1)};if(minusBtn)minusBtn.onclick=e=>{e.stopPropagation();addToCart(item,-1)}}
   const editBtn=card.querySelector('.edit-btn');if(editBtn)editBtn.onclick=e=>{e.stopPropagation();openEditItem(item.id)};
@@ -1040,6 +1056,12 @@ updateCartUI();loadAll();initCategorySwipe();
 </script>
 
 
+
+<!-- Floating Branches Button -->
+<button type="button" id="branchesBtn" class="is-visible" aria-label="فروعنا" style="display:none">
+  <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+  فروعنا
+</button>
 
 </body>
 </html>
