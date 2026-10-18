@@ -102,6 +102,19 @@ img.fade-img{opacity:0;transition:opacity .45s ease}img.fade-img.is-loaded{opaci
 body.has-cart-bar #branchesBtn{bottom:5.5rem}
 .branch-card{transition:transform .15s,box-shadow .15s}
 .branch-card:active{transform:scale(.98)}
+
+#renameCatModal{transition:opacity .25s ease}
+#renameCatModal.hidden{pointer-events:none;opacity:0}
+#renameCatModal:not(.hidden){opacity:1}
+#renameCatModal .rename-sheet{
+  transform:translateY(20px) scale(.97);opacity:0;
+  transition:transform .35s cubic-bezier(.2,.8,.2,1),opacity .3s ease;
+}
+#renameCatModal.show .rename-sheet{transform:translateY(0) scale(1);opacity:1}
+#renameCatModal .rename-input:focus{
+  outline:none;border-color:#846358;
+  box-shadow:0 0 0 3px rgba(132,99,88,.22);
+}
 </style>
 </head>
 <body class="bg-chocolate-50 text-chocolate-900">
@@ -191,6 +204,38 @@ body.has-cart-bar #branchesBtn{bottom:5.5rem}
     </div>
     <div id="branchesList" class="px-4 py-4 overflow-y-auto space-y-3"></div>
     <p class="text-center text-xs text-chocolate-400 pb-4 px-4">اختر الفرع لفتح الموقع على الخريطة</p>
+  </div>
+</div>
+
+
+<!-- Premium Category Rename Modal -->
+<div id="renameCatModal" class="fixed inset-0 z-[120] hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
+  <div class="absolute inset-0 bg-chocolate-950/60 backdrop-blur-md" id="renameCatBackdrop"></div>
+  <div class="rename-sheet relative bg-white w-full sm:max-w-md sm:rounded-3xl rounded-t-3xl shadow-2xl overflow-hidden">
+    <div class="bg-gradient-to-l from-chocolate-800 to-chocolate-700 px-6 py-5 text-white">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-chocolate-200 text-xs font-medium mb-0.5">إدارة القائمة</p>
+          <h2 class="text-xl font-bold tracking-tight">تعديل اسم القسم</h2>
+        </div>
+        <button type="button" id="closeRenameCat" class="w-9 h-9 rounded-full bg-white/15 hover:bg-white/25 text-white text-xl flex items-center justify-center" aria-label="إغلاق">×</button>
+      </div>
+    </div>
+    <div class="px-6 py-6 space-y-5">
+      <div class="bg-chocolate-50 border border-chocolate-100 rounded-2xl px-4 py-3">
+        <p class="text-xs text-chocolate-500 mb-1">الاسم الحالي</p>
+        <p id="renameCatOld" class="font-bold text-chocolate-900 text-base">—</p>
+      </div>
+      <div>
+        <label for="renameCatInput" class="block text-sm font-semibold text-chocolate-800 mb-2">الاسم الجديد</label>
+        <input type="text" id="renameCatInput" class="rename-input w-full border border-chocolate-200 rounded-2xl px-4 py-3.5 text-base bg-white text-chocolate-900 placeholder-chocolate-400" placeholder="اكتب الاسم الجديد للقسم" autocomplete="off">
+        <p id="renameCatError" class="hidden text-red-600 text-sm mt-2 font-medium">أدخل اسماً صالحاً بدون رموز تعبيرية</p>
+      </div>
+      <div class="flex gap-3 pt-1">
+        <button type="button" id="confirmRenameCat" class="flex-1 bg-chocolate-700 hover:bg-chocolate-800 text-white font-bold py-3.5 rounded-2xl text-base shadow-lg shadow-chocolate-700/20">حفظ الاسم</button>
+        <button type="button" id="cancelRenameCat" class="px-5 border border-chocolate-200 text-chocolate-700 font-semibold rounded-2xl hover:bg-chocolate-50">إلغاء</button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -440,27 +485,9 @@ function renderSectionsManager(){
     });
   });
   listEl.querySelectorAll('.cat-rename').forEach(btn=>{
-    btn.onclick=async()=>{
+    btn.onclick=()=>{
       const oldName=btn.getAttribute('data-cat');
-      const neu=prompt('الاسم الجديد للقسم:', oldName);
-      if(neu===null) return;
-      const clean=stripEmojis(neu);
-      if(!clean){alert('أدخل اسماً صالحاً بدون رموز');return}
-      if(clean===oldName) return;
-      for(const it of items.filter(i=>(stripEmojis(i.category)||'عام')===oldName)){
-        const {error}=await sbClient.from('menu_items').update({category:clean,category_icon:''}).eq('id',it.id);
-        if(error){alert('خطأ: '+error.message);return}
-      }
-      let extra2=[];try{extra2=JSON.parse(settings.extra_categories||'[]')||[]}catch(e){}
-      extra2=extra2.map(stripEmojis).map(x=>x===oldName?clean:x).filter(Boolean);
-      extra2=[...new Set(extra2)];
-      await upsertSetting('extra_categories', JSON.stringify(extra2));
-      settings.extra_categories=JSON.stringify(extra2);
-      let ord=[];try{ord=JSON.parse(settings.categories_order||'[]')||[]}catch(e){}
-      ord=ord.map(stripEmojis).map(x=>x===oldName?clean:x).filter(Boolean);
-      if(ord.length){await upsertSetting('categories_order', JSON.stringify(ord));settings.categories_order=JSON.stringify(ord)}
-      showToast('تم تعديل القسم ✓');
-      await loadItems();
+      openRenameCatModal(oldName);
     };
   });
   listEl.querySelectorAll('.cat-del').forEach(btn=>{
@@ -815,6 +842,78 @@ function closeBranchesModal(){
   if(bd) bd.onclick=closeBranchesModal;
   if(save) save.onclick=saveBranchForm;
   if(clr) clr.onclick=clearBranchForm;
+})();
+
+
+let __renameCatOldName='';
+function openRenameCatModal(oldName){
+  __renameCatOldName=oldName||'';
+  const m=document.getElementById('renameCatModal');
+  const inp=document.getElementById('renameCatInput');
+  const oldEl=document.getElementById('renameCatOld');
+  const err=document.getElementById('renameCatError');
+  if(oldEl) oldEl.textContent=__renameCatOldName;
+  if(inp){inp.value=__renameCatOldName;inp.focus()}
+  if(err) err.classList.add('hidden');
+  if(!m) return;
+  m.classList.remove('hidden');
+  requestAnimationFrame(()=>requestAnimationFrame(()=>m.classList.add('show')));
+  setTimeout(()=>{if(inp){inp.focus();inp.select()}},320);
+}
+function closeRenameCatModal(){
+  const m=document.getElementById('renameCatModal');
+  if(!m) return;
+  m.classList.remove('show');
+  setTimeout(()=>m.classList.add('hidden'),280);
+}
+async function confirmRenameCategory(){
+  const oldName=__renameCatOldName;
+  const inp=document.getElementById('renameCatInput');
+  const err=document.getElementById('renameCatError');
+  const neu=(inp&&inp.value)||'';
+  const clean=stripEmojis(neu);
+  if(!clean){
+    if(err) err.classList.remove('hidden');
+    return;
+  }
+  if(clean===oldName){closeRenameCatModal();return}
+  const btn=document.getElementById('confirmRenameCat');
+  if(btn){btn.disabled=true;btn.textContent='جاري الحفظ...'}
+  try{
+    for(const it of items.filter(i=>(stripEmojis(i.category)||'عام')===oldName)){
+      const {error}=await sbClient.from('menu_items').update({category:clean,category_icon:''}).eq('id',it.id);
+      if(error){alert('خطأ: '+error.message);return}
+    }
+    let extra2=[];try{extra2=JSON.parse(settings.extra_categories||'[]')||[]}catch(e){}
+    extra2=extra2.map(stripEmojis).map(x=>x===oldName?clean:x).filter(Boolean);
+    extra2=[...new Set(extra2)];
+    await upsertSetting('extra_categories', JSON.stringify(extra2));
+    settings.extra_categories=JSON.stringify(extra2);
+    let ord=[];try{ord=JSON.parse(settings.categories_order||'[]')||[]}catch(e){}
+    ord=ord.map(stripEmojis).map(x=>x===oldName?clean:x).filter(Boolean);
+    if(ord.length){await upsertSetting('categories_order', JSON.stringify(ord));settings.categories_order=JSON.stringify(ord)}
+    if(activeCategory===oldName) activeCategory=clean;
+    showToast('تم تعديل القسم ✓');
+    closeRenameCatModal();
+    await loadItems();
+    if(typeof renderSectionsManager==='function') renderSectionsManager();
+  } finally {
+    if(btn){btn.disabled=false;btn.textContent='حفظ الاسم'}
+  }
+}
+(function bindRenameCatModal(){
+  const c=document.getElementById('confirmRenameCat');
+  const x=document.getElementById('closeRenameCat');
+  const cancel=document.getElementById('cancelRenameCat');
+  const bd=document.getElementById('renameCatBackdrop');
+  const inp=document.getElementById('renameCatInput');
+  if(c) c.onclick=()=>confirmRenameCategory();
+  if(x) x.onclick=closeRenameCatModal;
+  if(cancel) cancel.onclick=closeRenameCatModal;
+  if(bd) bd.onclick=closeRenameCatModal;
+  if(inp) inp.addEventListener('keydown',function(e){
+    if(e.key==='Enter'){e.preventDefault();confirmRenameCategory()}
+  });
 })();
 
 updateCartUI();loadAll();initCategorySwipe();
