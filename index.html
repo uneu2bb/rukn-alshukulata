@@ -125,6 +125,29 @@ body.has-cart-bar #branchesBtn{bottom:5.5rem}
 #editItemModal .modal-panel{max-height:78vh!important;max-height:78dvh!important;display:flex!important;flex-direction:column!important;overflow:hidden!important}
 #editItemModal .modal-scroll-body{overflow-y:auto!important;-webkit-overflow-scrolling:touch!important;overscroll-behavior:contain!important;touch-action:pan-y!important;flex:1 1 auto!important;min-height:0!important}
 #editItemModal input,#editItemModal textarea{font-size:16px}
+
+/* Developer credits (secret vault) */
+#creditsBar{transition:opacity .25s ease,transform .25s ease}
+#creditsBar.credits-top{position:relative;z-index:40}
+#creditsBar.credits-bottom{position:relative}
+.credits-inner{display:flex;align-items:center;justify-content:center;gap:.75rem;flex-wrap:wrap;
+  padding:.55rem 1rem;background:linear-gradient(90deg,rgba(67,48,43,.97),rgba(92,64,51,.95));
+  color:#f2e8e5;font-size:.72rem;letter-spacing:.02em}
+.credits-inner a{width:1.85rem;height:1.85rem;border-radius:9999px;display:inline-flex;align-items:center;justify-content:center;
+  background:rgba(255,255,255,.12);color:#fff;transition:transform .15s,background .15s}
+.credits-inner a:hover{transform:scale(1.08);background:rgba(255,255,255,.22)}
+.credits-dot{opacity:.55;margin:0 .15rem}
+#creditsVaultModal,#creditsGateModal{transition:opacity .25s ease}
+#creditsVaultModal.hidden,#creditsGateModal.hidden{pointer-events:none;opacity:0}
+#creditsVaultModal:not(.hidden),#creditsGateModal:not(.hidden){opacity:1}
+#creditsVaultModal .cv-sheet,#creditsGateModal .cv-sheet{
+  transform:translateY(18px) scale(.98);opacity:0;
+  transition:transform .32s cubic-bezier(.2,.8,.2,1),opacity .28s ease}
+#creditsVaultModal.show .cv-sheet,#creditsGateModal.show .cv-sheet{transform:translateY(0) scale(1);opacity:1}
+#adminCreditsBtn{width:2rem;height:2rem;border-radius:9999px;border:1px solid rgba(255,255,255,.25);
+  background:rgba(255,255,255,.1);color:#fff;font-size:.95rem;line-height:1;display:inline-flex;
+  align-items:center;justify-content:center;transition:background .15s}
+#adminCreditsBtn:hover{background:rgba(255,255,255,.22)}
 </style>
 </head>
 <body class="bg-chocolate-50 text-chocolate-900">
@@ -268,7 +291,72 @@ body.has-cart-bar #branchesBtn{bottom:5.5rem}
   </div>
 </div>
 
-<div id="adminModal" class="fixed inset-0 z-[100] hidden bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"><div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl admin-panel fade-in"><div class="sticky top-0 bg-chocolate-800 text-white px-6 py-4 rounded-t-2xl flex justify-between items-center"><h2 class="text-xl font-bold">لوحة التحكم</h2><button type="button" id="closeAdmin" class="text-2xl">×</button></div>
+
+<!-- Credits Gate (secret) -->
+<div id="creditsGateModal" class="fixed inset-0 z-[140] hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
+  <div class="absolute inset-0 bg-chocolate-950/60 backdrop-blur-md" id="creditsGateBackdrop"></div>
+  <div class="cv-sheet relative bg-white w-full sm:max-w-sm sm:rounded-3xl rounded-t-3xl shadow-2xl overflow-hidden">
+    <div class="px-6 pt-6 pb-2 text-center">
+      <div class="w-12 h-12 mx-auto mb-3 rounded-full bg-chocolate-100 text-chocolate-800 flex items-center justify-center text-xl font-bold">©</div>
+      <p class="text-sm text-chocolate-600">أدخل الرمز للمتابعة</p>
+    </div>
+    <div class="px-6 py-4 space-y-3">
+      <input type="password" id="creditsGateInput" class="w-full border border-chocolate-200 rounded-2xl px-4 py-3 text-center text-base" placeholder="••••" autocomplete="off">
+      <p id="creditsGateError" class="hidden text-red-600 text-sm text-center font-medium">الرمز غير صحيح</p>
+      <button type="button" id="creditsGateSubmit" class="w-full bg-chocolate-700 text-white font-bold py-3 rounded-2xl">دخول</button>
+      <button type="button" id="creditsGateCancel" class="w-full text-chocolate-600 text-sm py-2">إلغاء</button>
+    </div>
+  </div>
+</div>
+<!-- Credits Vault -->
+<div id="creditsVaultModal" class="fixed inset-0 z-[141] hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
+  <div class="absolute inset-0 bg-chocolate-950/60 backdrop-blur-md" id="creditsVaultBackdrop"></div>
+  <div class="cv-sheet relative bg-white w-full sm:max-w-md sm:rounded-3xl rounded-t-3xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col">
+    <div class="shrink-0 bg-gradient-to-l from-chocolate-900 to-chocolate-700 text-white px-5 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <span class="w-8 h-8 rounded-full bg-white/15 flex items-center justify-center text-sm font-bold">©</span>
+        <span class="font-bold text-base">إعدادات خاصة</span>
+      </div>
+      <button type="button" id="closeCreditsVault" class="w-9 h-9 rounded-full bg-white/15 text-xl">×</button>
+    </div>
+    <div class="overflow-y-auto flex-1 px-5 py-4 space-y-4" style="-webkit-overflow-scrolling:touch">
+      <label class="flex items-center justify-between gap-3 bg-chocolate-50 border border-chocolate-100 rounded-2xl px-4 py-3">
+        <span class="text-sm font-semibold text-chocolate-900">إظهار الشريط للزبائن</span>
+        <input type="checkbox" id="creditsEnabled" class="w-5 h-5 accent-chocolate-700">
+      </label>
+      <div>
+        <p class="text-xs font-semibold text-chocolate-600 mb-2">مكان الظهور</p>
+        <div class="grid grid-cols-2 gap-2">
+          <label class="flex items-center gap-2 border border-chocolate-200 rounded-xl px-3 py-2.5 text-sm cursor-pointer">
+            <input type="radio" name="creditsPos" value="top" id="creditsPosTop"> أعلى الموقع
+          </label>
+          <label class="flex items-center gap-2 border border-chocolate-200 rounded-xl px-3 py-2.5 text-sm cursor-pointer">
+            <input type="radio" name="creditsPos" value="bottom" id="creditsPosBottom" checked> أسفل الموقع
+          </label>
+        </div>
+      </div>
+      <div>
+        <label class="block text-xs font-semibold text-chocolate-600 mb-1">نص قصير (اختياري)</label>
+        <input type="text" id="creditsText" class="w-full border border-chocolate-200 rounded-xl px-3 py-2.5 text-sm" placeholder="مثال: تصميم وتطوير" maxlength="40">
+      </div>
+      <div class="space-y-2">
+        <p class="text-xs font-semibold text-chocolate-600">حسابات التواصل</p>
+        <input type="text" id="creditsWa" class="w-full border border-chocolate-200 rounded-xl px-3 py-2.5 text-sm" placeholder="واتساب (رقم أو رابط)" dir="ltr">
+        <input type="text" id="creditsIg" class="w-full border border-chocolate-200 rounded-xl px-3 py-2.5 text-sm" placeholder="إنستغرام" dir="ltr">
+        <input type="text" id="creditsFb" class="w-full border border-chocolate-200 rounded-xl px-3 py-2.5 text-sm" placeholder="فيسبوك" dir="ltr">
+        <input type="text" id="creditsTg" class="w-full border border-chocolate-200 rounded-xl px-3 py-2.5 text-sm" placeholder="تلغرام" dir="ltr">
+      </div>
+      <div class="border-t border-chocolate-100 pt-3 space-y-2">
+        <p class="text-xs font-semibold text-chocolate-600">تغيير رمز الدخول الخاص</p>
+        <input type="password" id="creditsNewPass" class="w-full border border-chocolate-200 rounded-xl px-3 py-2.5 text-sm" placeholder="رمز جديد (اختياري)">
+        <input type="password" id="creditsNewPass2" class="w-full border border-chocolate-200 rounded-xl px-3 py-2.5 text-sm" placeholder="تأكيد الرمز">
+      </div>
+      <button type="button" id="saveCreditsBtn" class="w-full bg-chocolate-700 hover:bg-chocolate-800 text-white font-bold py-3 rounded-2xl">حفظ</button>
+    </div>
+  </div>
+</div>
+
+<div id="adminModal" class="fixed inset-0 z-[100] hidden bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"><div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl admin-panel fade-in"><div class="sticky top-0 bg-chocolate-800 text-white px-6 py-4 rounded-t-2xl flex justify-between items-center gap-2"><h2 class="text-xl font-bold flex-1">لوحة التحكم</h2><button type="button" id="adminCreditsBtn" title="©" aria-label="©">©</button><button type="button" id="closeAdmin" class="text-2xl leading-none w-9 h-9">×</button></div>
 <div class="admin-panel-body">
 <div class="p-4 border-b border-chocolate-200 bg-chocolate-50">
 <div class="flex items-center justify-between gap-4 bg-white border border-chocolate-200 rounded-xl px-4 py-3 shadow-sm">
@@ -427,7 +515,7 @@ function applyShopStatus(){
   if(waBtn){if(open)waBtn.classList.remove('hidden');else waBtn.classList.add('hidden')}
   if(closedMsg){if(open)closedMsg.classList.add('hidden');else closedMsg.classList.remove('hidden')}
 }
-function applySettings(){isShopOpen=!(settings.is_open==='false'||settings.is_open===false||settings.is_open==='0');const name=settings.site_name||'ركن الشوكلاتة';document.getElementById('siteName').textContent=name;document.getElementById('footerName').textContent=name;document.title=name;const logoEl=document.getElementById('siteLogo');function revealImg(el,url,fallback){if(!el)return;const src=url?cacheBust(url):(fallback||'');if(!src){el.style.opacity='0';return}el.onload=function(){el.style.opacity='1'};el.onerror=function(){if(fallback&&el.src.indexOf(fallback)<0)el.src=fallback;else el.style.opacity='0'};el.style.opacity='0';el.src=src;if(el.complete&&el.naturalWidth)el.style.opacity='1'}revealImg(logoEl,settings.logo,'https://images.unsplash.com/photo-1606312619070-d48b4c652a52?w=160&h=160&fit=crop');const fav=settings.favicon||settings.logo||'';const fl=document.getElementById('siteFavicon');if(fl&&fav)fl.href=cacheBust(fav);const hero=document.getElementById('heroCover');if(hero)revealImg(hero,settings.cover||'https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=1600&h=900&fit=crop','');const fd=document.getElementById('footerDesc');if(settings.footer_desc){fd.textContent=settings.footer_desc;fd.classList.remove('hidden')}else{fd.textContent='';fd.classList.add('hidden')}const s1b=document.getElementById('shop1Box');const s2b=document.getElementById('shop2Box');if(s1b)s1b.classList.add('hidden');if(s2b)s2b.classList.add('hidden');const _fs=document.getElementById('footerShops');if(_fs)_fs.classList.add('hidden');function normWa(v){v=(v||'').trim();if(!v)return'';if(/^https?:\/\//i.test(v)||v.includes('wa.me'))return v.startsWith('http')?v:('https://'+v);const d=v.replace(/[^0-9]/g,'');return d?('https://wa.me/'+d):''}function normIg(v){v=(v||'').trim();if(!v)return'';if(/^https?:\/\//i.test(v))return v;return'https://instagram.com/'+v.replace(/^@/,'')}function normFb(v){v=(v||'').trim();if(!v)return'';if(/^https?:\/\//i.test(v))return v;return'https://facebook.com/'+v.replace(/^@/,'')}const wa=document.getElementById('socialWhatsapp'),ig=document.getElementById('socialInstagram'),fb=document.getElementById('socialFacebook');const waU=normWa(settings.whatsapp),igU=normIg(settings.instagram),fbU=normFb(settings.facebook);if(waU){wa.href=waU;wa.classList.remove('hidden')}else wa.classList.add('hidden');if(igU){ig.href=igU;ig.classList.remove('hidden')}else ig.classList.add('hidden');if(fbU){fb.href=fbU;fb.classList.remove('hidden')}else fb.classList.add('hidden');applyShopStatus();try{applyBranchesUI()}catch(e){}}
+function applySettings(){isShopOpen=!(settings.is_open==='false'||settings.is_open===false||settings.is_open==='0');const name=settings.site_name||'ركن الشوكلاتة';document.getElementById('siteName').textContent=name;document.getElementById('footerName').textContent=name;document.title=name;const logoEl=document.getElementById('siteLogo');function revealImg(el,url,fallback){if(!el)return;const src=url?cacheBust(url):(fallback||'');if(!src){el.style.opacity='0';return}el.onload=function(){el.style.opacity='1'};el.onerror=function(){if(fallback&&el.src.indexOf(fallback)<0)el.src=fallback;else el.style.opacity='0'};el.style.opacity='0';el.src=src;if(el.complete&&el.naturalWidth)el.style.opacity='1'}revealImg(logoEl,settings.logo,'https://images.unsplash.com/photo-1606312619070-d48b4c652a52?w=160&h=160&fit=crop');const fav=settings.favicon||settings.logo||'';const fl=document.getElementById('siteFavicon');if(fl&&fav)fl.href=cacheBust(fav);const hero=document.getElementById('heroCover');if(hero)revealImg(hero,settings.cover||'https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=1600&h=900&fit=crop','');const fd=document.getElementById('footerDesc');if(settings.footer_desc){fd.textContent=settings.footer_desc;fd.classList.remove('hidden')}else{fd.textContent='';fd.classList.add('hidden')}const s1b=document.getElementById('shop1Box');const s2b=document.getElementById('shop2Box');if(s1b)s1b.classList.add('hidden');if(s2b)s2b.classList.add('hidden');const _fs=document.getElementById('footerShops');if(_fs)_fs.classList.add('hidden');function normWa(v){v=(v||'').trim();if(!v)return'';if(/^https?:\/\//i.test(v)||v.includes('wa.me'))return v.startsWith('http')?v:('https://'+v);const d=v.replace(/[^0-9]/g,'');return d?('https://wa.me/'+d):''}function normIg(v){v=(v||'').trim();if(!v)return'';if(/^https?:\/\//i.test(v))return v;return'https://instagram.com/'+v.replace(/^@/,'')}function normFb(v){v=(v||'').trim();if(!v)return'';if(/^https?:\/\//i.test(v))return v;return'https://facebook.com/'+v.replace(/^@/,'')}const wa=document.getElementById('socialWhatsapp'),ig=document.getElementById('socialInstagram'),fb=document.getElementById('socialFacebook');const waU=normWa(settings.whatsapp),igU=normIg(settings.instagram),fbU=normFb(settings.facebook);if(waU){wa.href=waU;wa.classList.remove('hidden')}else wa.classList.add('hidden');if(igU){ig.href=igU;ig.classList.remove('hidden')}else ig.classList.add('hidden');if(fbU){fb.href=fbU;fb.classList.remove('hidden')}else fb.classList.add('hidden');applyShopStatus();try{applyBranchesUI()}catch(e){}try{applyCreditsBar()}catch(e){}}
 function renderCategoryBar(){const bar=document.getElementById('categoryBar');if(!bar)return;bar.innerHTML='';sections.forEach(sec=>{const btn=document.createElement('button');const active=sec.title===activeCategory;btn.className='cat-btn px-4 py-2 rounded-full text-sm font-semibold border border-chocolate-200 '+(active?'active':'bg-white text-chocolate-800');btn.textContent=sec.title;btn.setAttribute('data-cat',sec.title);btn.onclick=()=>{if(activeCategory===sec.title)return;window.__swipeDir=0;activeCategory=sec.title;renderCategoryBar();renderActiveSection()};bar.appendChild(btn);if(active){try{btn.scrollIntoView({behavior:'smooth',inline:'center',block:'nearest'})}catch(e){}}})}
 async function persistSortOrder(orderedIds){for(let i=0;i<orderedIds.length;i++){const id=orderedIds[i];await sbClient.from('menu_items').update({sort_order:i+1}).eq('id',id);const it=items.find(x=>String(x.id)===String(id));if(it)it.sort_order=i+1}showToast('تم حفظ الترتيب ✓');rebuildSections()}
 function enableCardDrag(card,item){if(!isAdminUnlocked)return;card.setAttribute('draggable','true');card.classList.add('drag-handle');
@@ -1073,6 +1161,167 @@ function closeConfirmDelete(result){
   if(bd) bd.onclick=()=>closeConfirmDelete(false);
 })();
 
+
+let creditsUnlocked=sessionStorage.getItem('ruknCreditsUnlocked')==='yes';
+function getCreditsPass(){return (settings.credits_password||'9090').toString()}
+function normCreditsLink(type,v){
+  v=(v||'').trim();if(!v)return'';
+  if(/^https?:\/\//i.test(v))return v;
+  if(type==='wa'){const d=v.replace(/[^0-9]/g,'');return d?('https://wa.me/'+d):''}
+  if(type==='ig'){return 'https://instagram.com/'+v.replace(/^@/,'').replace(/^instagram\.com\//i,'')}
+  if(type==='fb'){return 'https://facebook.com/'+v.replace(/^@/,'').replace(/^facebook\.com\//i,'')}
+  if(type==='tg'){return 'https://t.me/'+v.replace(/^@/,'').replace(/^t\.me\//i,'')}
+  return v;
+}
+function applyCreditsBar(){
+  const bar=document.getElementById('creditsBar');
+  if(!bar) return;
+  const on=settings.credits_enabled==='true'||settings.credits_enabled===true||settings.credits_enabled==='1';
+  if(!on){bar.classList.add('hidden');return}
+  const pos=(settings.credits_position||'bottom')==='top'?'top':'bottom';
+  bar.classList.remove('hidden','credits-top','credits-bottom');
+  bar.classList.add(pos==='top'?'credits-top':'credits-bottom');
+  const label=document.getElementById('creditsLabel');
+  const txt=(settings.credits_text||'').trim();
+  if(label) label.textContent=txt||'✦';
+  const links=document.getElementById('creditsLinks');
+  if(!links) return;
+  links.innerHTML='';
+  const items=[
+    {t:'wa',v:settings.credits_wa,bg:'#25D366',title:'واتساب',svg:'<path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2 22l4.999-1.402A9.956 9.956 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2z" fill="none" stroke="currentColor" stroke-width="0"/>'},
+    {t:'ig',v:settings.credits_ig,bg:'#E1306C',title:'إنستغرام'},
+    {t:'fb',v:settings.credits_fb,bg:'#1877F2',title:'فيسبوك'},
+    {t:'tg',v:settings.credits_tg,bg:'#229ED9',title:'تلغرام'}
+  ];
+  let any=false;
+  items.forEach(it=>{
+    const href=normCreditsLink(it.t,it.v);
+    if(!href) return;
+    any=true;
+    const a=document.createElement('a');
+    a.href=href;a.target='_blank';a.rel='noopener noreferrer';a.title=it.title;
+    a.style.background=it.bg;
+    if(it.t==='wa') a.innerHTML='<svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.435 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>';
+    else if(it.t==='ig') a.innerHTML='<svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>';
+    else if(it.t==='fb') a.innerHTML='<svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>';
+    else a.innerHTML='<svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M11.944 0A12 12 0 000 12a12 12 0 0012 12 12 12 0 0012-12A12 12 0 0012 0a12 12 0 00-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 01.171.325c.016.093.036.306.02.472-.15 1.568-.769 5.233-1.087 6.94-.134.72-.397 1.022-.655 1.047-.552.052-1.05-.36-1.624-.705-.905-.54-1.415-.875-2.293-1.401-1.436-.86-.505-1.332.313-2.106.214-.203 3.927-3.6 4.002-3.91.009-.039.018-.18-.068-.254s-.209-.038-.297-.023c-.128.021-2.163 1.373-6.104 4.033-.577.4-1.1.595-1.566.585-.516-.014-1.508-.292-2.245-.532-.904-.293-1.622-.448-1.558-.944.033-.258.486-.523 1.338-.79 5.241-2.27 8.736-3.766 10.48-4.51.9-.384 2.164-.596 2.52-.623z"/></svg>';
+    links.appendChild(a);
+  });
+  if(!any && !txt){bar.classList.add('hidden');return}
+  // position in DOM
+  const header=document.querySelector('header')||document.body.firstElementChild;
+  const footer=document.querySelector('footer')||document.getElementById('socialLinks')||document.body;
+  if(pos==='top'){
+    if(header&&header.parentNode) header.parentNode.insertBefore(bar, header);
+    else document.body.insertBefore(bar, document.body.firstChild);
+  } else {
+    // after social / near footer
+    const anchor=document.getElementById('socialLinks')||document.querySelector('footer');
+    if(anchor&&anchor.parentNode) anchor.parentNode.insertBefore(bar, anchor.nextSibling);
+    else document.body.appendChild(bar);
+  }
+}
+function openCreditsGate(){
+  const m=document.getElementById('creditsGateModal');
+  const inp=document.getElementById('creditsGateInput');
+  const err=document.getElementById('creditsGateError');
+  if(err) err.classList.add('hidden');
+  if(inp) inp.value='';
+  if(!m) return;
+  m.classList.remove('hidden');
+  if(typeof lockBodyScroll==='function') lockBodyScroll();
+  requestAnimationFrame(()=>requestAnimationFrame(()=>m.classList.add('show')));
+  setTimeout(()=>{if(inp)inp.focus()},280);
+}
+function closeCreditsGate(){
+  const m=document.getElementById('creditsGateModal');
+  if(!m) return;
+  m.classList.remove('show');
+  setTimeout(()=>{m.classList.add('hidden');if(typeof unlockBodyScroll==='function')unlockBodyScroll()},260);
+}
+function openCreditsVault(){
+  closeCreditsGate();
+  const m=document.getElementById('creditsVaultModal');
+  if(!m) return;
+  document.getElementById('creditsEnabled').checked=settings.credits_enabled==='true'||settings.credits_enabled===true||settings.credits_enabled==='1';
+  const pos=settings.credits_position||'bottom';
+  document.getElementById('creditsPosTop').checked=pos==='top';
+  document.getElementById('creditsPosBottom').checked=pos!=='top';
+  document.getElementById('creditsText').value=settings.credits_text||'';
+  document.getElementById('creditsWa').value=settings.credits_wa||'';
+  document.getElementById('creditsIg').value=settings.credits_ig||'';
+  document.getElementById('creditsFb').value=settings.credits_fb||'';
+  document.getElementById('creditsTg').value=settings.credits_tg||'';
+  document.getElementById('creditsNewPass').value='';
+  document.getElementById('creditsNewPass2').value='';
+  m.classList.remove('hidden');
+  if(typeof lockBodyScroll==='function') lockBodyScroll();
+  requestAnimationFrame(()=>requestAnimationFrame(()=>m.classList.add('show')));
+}
+function closeCreditsVault(){
+  const m=document.getElementById('creditsVaultModal');
+  if(!m) return;
+  m.classList.remove('show');
+  setTimeout(()=>{m.classList.add('hidden');if(typeof unlockBodyScroll==='function')unlockBodyScroll()},260);
+}
+async function saveCreditsVault(){
+  const enabled=document.getElementById('creditsEnabled').checked;
+  const pos=document.getElementById('creditsPosTop').checked?'top':'bottom';
+  const text=(document.getElementById('creditsText').value||'').trim();
+  const wa=(document.getElementById('creditsWa').value||'').trim();
+  const ig=(document.getElementById('creditsIg').value||'').trim();
+  const fb=(document.getElementById('creditsFb').value||'').trim();
+  const tg=(document.getElementById('creditsTg').value||'').trim();
+  const p1=(document.getElementById('creditsNewPass').value||'').trim();
+  const p2=(document.getElementById('creditsNewPass2').value||'').trim();
+  if(p1||p2){
+    if(p1.length<3){alert('الرمز الجديد قصير جداً');return}
+    if(p1!==p2){alert('تأكيد الرمز غير متطابق');return}
+    await upsertSetting('credits_password', p1);
+    settings.credits_password=p1;
+  }
+  const pairs=[['credits_enabled',enabled?'true':'false'],['credits_position',pos],['credits_text',text],['credits_wa',wa],['credits_ig',ig],['credits_fb',fb],['credits_tg',tg]];
+  for(const [k,v] of pairs){await upsertSetting(k,v);settings[k]=v}
+  try{sessionStorage.setItem('rukn_settings_v1',JSON.stringify(settings))}catch(e){}
+  applyCreditsBar();
+  showToast('تم الحفظ ✓');
+  closeCreditsVault();
+}
+function onAdminCreditsClick(){
+  if(sessionStorage.getItem('ruknCreditsUnlocked')==='yes') openCreditsVault();
+  else openCreditsGate();
+}
+function submitCreditsGate(){
+  const inp=document.getElementById('creditsGateInput');
+  const err=document.getElementById('creditsGateError');
+  const val=(inp&&inp.value)||'';
+  if(val===getCreditsPass()){
+    sessionStorage.setItem('ruknCreditsUnlocked','yes');
+    if(err) err.classList.add('hidden');
+    openCreditsVault();
+  } else {
+    if(err) err.classList.remove('hidden');
+  }
+}
+(function bindCreditsUI(){
+  const btn=document.getElementById('adminCreditsBtn');
+  if(btn) btn.onclick=function(e){e.preventDefault();e.stopPropagation();onAdminCreditsClick()};
+  const gs=document.getElementById('creditsGateSubmit');
+  const gc=document.getElementById('creditsGateCancel');
+  const gb=document.getElementById('creditsGateBackdrop');
+  const gi=document.getElementById('creditsGateInput');
+  if(gs) gs.onclick=submitCreditsGate;
+  if(gc) gc.onclick=closeCreditsGate;
+  if(gb) gb.onclick=closeCreditsGate;
+  if(gi) gi.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();submitCreditsGate()}});
+  const vx=document.getElementById('closeCreditsVault');
+  const vb=document.getElementById('creditsVaultBackdrop');
+  const vs=document.getElementById('saveCreditsBtn');
+  if(vx) vx.onclick=closeCreditsVault;
+  if(vb) vb.onclick=closeCreditsVault;
+  if(vs) vs.onclick=saveCreditsVault;
+})();
+
 updateCartUI();loadAll();initCategorySwipe();
 
 </script>
@@ -1080,6 +1329,15 @@ updateCartUI();loadAll();initCategorySwipe();
 
 
 
+
+
+<div id="creditsBar" class="hidden credits-bottom">
+  <div class="credits-inner">
+    <span id="creditsLabel" class="font-semibold opacity-90">✦</span>
+    <span class="credits-dot">·</span>
+    <div id="creditsLinks" class="flex items-center gap-2"></div>
+  </div>
+</div>
 
 </body>
 </html>
