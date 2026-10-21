@@ -130,13 +130,23 @@ body.has-cart-bar #branchesBtn{bottom:5.5rem}
 #creditsBar{transition:opacity .25s ease,transform .25s ease}
 #creditsBar.credits-top{position:relative;z-index:40}
 #creditsBar.credits-bottom{position:relative}
-.credits-inner{display:flex;align-items:center;justify-content:center;gap:.75rem;flex-wrap:wrap;
-  padding:.55rem 1rem;background:linear-gradient(90deg,rgba(67,48,43,.97),rgba(92,64,51,.95));
+.credits-inner{display:flex;align-items:center;justify-content:center;gap:.45rem;flex-wrap:wrap;
+  padding:.5rem 1rem;background:linear-gradient(90deg,rgba(67,48,43,.97),rgba(92,64,51,.95));
   color:#f2e8e5;font-size:.72rem;letter-spacing:.02em}
+.credits-toggle{display:inline-flex;align-items:center;gap:.4rem;background:transparent;border:none;color:inherit;
+  cursor:pointer;padding:.25rem .35rem;border-radius:9999px;font:inherit;-webkit-tap-highlight-color:transparent}
+.credits-toggle:active{opacity:.85}
+.credits-arrow{display:inline-flex;width:1.35rem;height:1.35rem;border-radius:9999px;align-items:center;justify-content:center;
+  background:rgba(255,255,255,.14);transition:transform .25s ease,background .15s}
+.credits-arrow svg{width:.75rem;height:.75rem}
+#creditsBar.is-open .credits-arrow{transform:rotate(180deg);background:rgba(255,255,255,.28)}
+#creditsLinks{display:none;align-items:center;gap:.45rem;max-width:100%;
+  animation:creditsPop .22s ease}
+#creditsBar.is-open #creditsLinks{display:inline-flex}
+@keyframes creditsPop{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
 .credits-inner a{width:1.85rem;height:1.85rem;border-radius:9999px;display:inline-flex;align-items:center;justify-content:center;
   background:rgba(255,255,255,.12);color:#fff;transition:transform .15s,background .15s}
 .credits-inner a:hover{transform:scale(1.08);background:rgba(255,255,255,.22)}
-.credits-dot{opacity:.55;margin:0 .15rem}
 #creditsVaultModal,#creditsGateModal{transition:opacity .25s ease}
 #creditsVaultModal.hidden,#creditsGateModal.hidden{pointer-events:none;opacity:0}
 #creditsVaultModal:not(.hidden),#creditsGateModal:not(.hidden){opacity:1}
@@ -337,7 +347,7 @@ body.has-cart-bar #branchesBtn{bottom:5.5rem}
       </div>
       <div>
         <label class="block text-xs font-semibold text-chocolate-600 mb-1">نص قصير (اختياري)</label>
-        <input type="text" id="creditsText" class="w-full border border-chocolate-200 rounded-xl px-3 py-2.5 text-sm" placeholder="مثال: تصميم وتطوير" maxlength="40">
+        <input type="text" id="creditsText" class="w-full border border-chocolate-200 rounded-xl px-3 py-2.5 text-sm" placeholder="تم تصميم الموقع بواسطة" maxlength="40">
       </div>
       <div class="space-y-2">
         <p class="text-xs font-semibold text-chocolate-600">حسابات التواصل</p>
@@ -1183,7 +1193,10 @@ function applyCreditsBar(){
   bar.classList.add(pos==='top'?'credits-top':'credits-bottom');
   const label=document.getElementById('creditsLabel');
   const txt=(settings.credits_text||'').trim();
-  if(label) label.textContent=txt||'✦';
+  if(label) label.textContent=txt||'تم تصميم الموقع بواسطة';
+  bar.classList.remove('is-open');
+  const tog=document.getElementById('creditsToggle');
+  if(tog) tog.setAttribute('aria-expanded','false');
   const links=document.getElementById('creditsLinks');
   if(!links) return;
   links.innerHTML='';
@@ -1303,6 +1316,19 @@ function submitCreditsGate(){
     if(err) err.classList.remove('hidden');
   }
 }
+
+(function bindCreditsToggle(){
+  document.addEventListener('click',function(e){
+    const t=e.target.closest && e.target.closest('#creditsToggle,.credits-toggle');
+    if(!t) return;
+    e.preventDefault();
+    const bar=document.getElementById('creditsBar');
+    if(!bar||bar.classList.contains('hidden')) return;
+    const open=bar.classList.toggle('is-open');
+    t.setAttribute('aria-expanded', open?'true':'false');
+  });
+})();
+
 (function bindCreditsUI(){
   const btn=document.getElementById('adminCreditsBtn');
   if(btn) btn.onclick=function(e){e.preventDefault();e.stopPropagation();onAdminCreditsClick()};
@@ -1333,9 +1359,13 @@ updateCartUI();loadAll();initCategorySwipe();
 
 <div id="creditsBar" class="hidden credits-bottom">
   <div class="credits-inner">
-    <span id="creditsLabel" class="font-semibold opacity-90">✦</span>
-    <span class="credits-dot">·</span>
-    <div id="creditsLinks" class="flex items-center gap-2"></div>
+    <button type="button" id="creditsToggle" class="credits-toggle" aria-expanded="false" aria-controls="creditsLinks">
+      <span id="creditsLabel" class="font-semibold opacity-95">تم تصميم الموقع بواسطة</span>
+      <span class="credits-arrow" aria-hidden="true">
+        <svg fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+      </span>
+    </button>
+    <div id="creditsLinks"></div>
   </div>
 </div>
 
