@@ -1,0 +1,21 @@
+{
+  "id": "/",
+  "name": "ركن الشوكلاتة",
+  "short_name": "ركن الشوكلاتة",
+  "description": "قائمة ركن الشوكلاتة — حلويات وقهوة فاخرة مع طلب عبر واتساب",
+  "start_url": "/?source=pwa",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#fdf8f6",
+  "theme_color": "#43302b",
+  "lang": "ar",
+  "dir": "rtl",
+  "categories": ["food", "lifestyle"],
+  "icons": [
+    {"src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
+    {"src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"},
+    {"src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+  ],
+  "prefer_related_applications": false
+}
